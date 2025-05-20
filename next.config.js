@@ -17,7 +17,7 @@ const nextConfig = {
       'localhost',
       'employee-admin-c83e8.appspot.com',
     ],
-    unoptimized: false, // Let Netlify optimize images
+    unoptimized: true, // Set to true for Netlify deployment
     remotePatterns: [
       {
         protocol: 'https',
@@ -39,7 +39,9 @@ const nextConfig = {
         destination: `${docGenUrl}/:path*`
       }
     ]
-  }
+  },
+  // Output: Export the app as static HTML - works better with Netlify
+  output: 'export'
 };
 
 module.exports = nextConfig; 
