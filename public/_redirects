@@ -1,5 +1,0 @@
-# Redirect all routes to index.html for client-side routing
-/* /index.html 200
-
-# Handle Next.js static assets
-/_next/* /_next/:splat 200 

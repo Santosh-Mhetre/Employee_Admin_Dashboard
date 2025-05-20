@@ -10,6 +10,7 @@ const nextConfig = {
   },
   // Optimize images for Netlify
   images: {
+    unoptimized: true, // Required for Netlify
     domains: [
       'firebasestorage.googleapis.com',
       'storage.googleapis.com',
@@ -17,7 +18,6 @@ const nextConfig = {
       'localhost',
       'employee-admin-c83e8.appspot.com',
     ],
-    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: 'https',
@@ -25,23 +25,9 @@ const nextConfig = {
       },
     ],
   },
-  // Disable rewrites for Netlify
-  async rewrites() {
-    if (process.env.NODE_ENV === 'development') {
-      const docGenUrl = process.env.DOCUMENT_GENERATOR_URL || 'http://localhost:3001';
-      return [
-        {
-          source: '/document-generator/:path*',
-          destination: `${docGenUrl}/:path*`
-        }
-      ];
-    }
-    return [];
-  },
-  // Netlify-specific configuration
-  trailingSlash: true,
+  // Basic configuration - no rewrites for Netlify
   reactStrictMode: true,
-  poweredByHeader: false
+  poweredByHeader: false,
 };
 
 module.exports = nextConfig; 
