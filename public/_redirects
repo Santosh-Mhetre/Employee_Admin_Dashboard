@@ -1,0 +1,7 @@
+# Redirects for Next.js dynamic routes
+/employees/* /employees/[id].html 200
+/employments/* /employments/[id].html 200
+/document-generator/* /document-generator/[type].html 200
+
+# SPA fallback
+/* /index.html 200 
