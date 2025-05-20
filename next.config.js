@@ -39,9 +39,7 @@ const nextConfig = {
         destination: `${docGenUrl}/:path*`
       }
     ]
-  },
-  // Output: Export the app as static HTML - works better with Netlify
-  output: 'export'
+  }
 };
 
 module.exports = nextConfig; 

@@ -7,11 +7,4 @@
   NEXT_USE_NETLIFY_EDGE = "true"
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-  force = false
-  conditions = {Role = ["anonymous"]} 
+  package = "@netlify/plugin-nextjs" 
