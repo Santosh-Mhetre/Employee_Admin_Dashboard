@@ -17,7 +17,7 @@ const nextConfig = {
       'localhost',
       'employee-admin-c83e8.appspot.com',
     ],
-    unoptimized: true, // Set to true for Netlify deployment
+    unoptimized: true, // Required for static export
     remotePatterns: [
       {
         protocol: 'https',
@@ -25,34 +25,22 @@ const nextConfig = {
       },
     ],
   },
-  // Disable rewrites when deploying to Netlify
+  // Disable rewrites for Netlify
   async rewrites() {
-    if (process.env.NETLIFY) {
-      return [];
+    if (process.env.NODE_ENV === 'development') {
+      const docGenUrl = process.env.DOCUMENT_GENERATOR_URL || 'http://localhost:3001';
+      return [
+        {
+          source: '/document-generator/:path*',
+          destination: `${docGenUrl}/:path*`
+        }
+      ];
     }
-    
-    // Get the document generator URL from environment variables or use defaults
-    const docGenUrl = process.env.DOCUMENT_GENERATOR_URL || 
-      (process.env.NODE_ENV === 'development' 
-        ? 'http://localhost:3001'
-        : 'https://document-generator.yourdomain.com');
-    
-    return [
-      {
-        source: '/document-generator/:path*',
-        destination: `${docGenUrl}/:path*`
-      }
-    ]
+    return [];
   },
-  // Additional Netlify-specific configuration
-  trailingSlash: false,
+  // Netlify-specific configuration
+  trailingSlash: true,
   reactStrictMode: true,
-  // Set to true for Netlify deployments
-  distDir: '.next',
-  generateBuildId: async () => {
-    // Generate a stable build ID for Netlify
-    return 'netlify-build-' + Date.now().toString();
-  },
   poweredByHeader: false
 };
 
