@@ -1,0 +1,20 @@
+# Cache static assets
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# Proper MIME types for JavaScript files
+/_next/static/chunks/*.js
+  Content-Type: application/javascript
+
+/_next/static/*/pages/*.js
+  Content-Type: application/javascript
+
+/_next/static/*/pages/_app.js
+  Content-Type: application/javascript
+
+/_next/static/*/pages/_error.js
+  Content-Type: application/javascript
+
+# Handle fonts
+/_next/static/media/*.woff2
+  Content-Type: font/woff2 

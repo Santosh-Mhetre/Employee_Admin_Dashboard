@@ -25,8 +25,12 @@ const nextConfig = {
       },
     ],
   },
-  // Rewrite configuration
+  // Disable rewrites when deploying to Netlify
   async rewrites() {
+    if (process.env.NETLIFY) {
+      return [];
+    }
+    
     // Get the document generator URL from environment variables or use defaults
     const docGenUrl = process.env.DOCUMENT_GENERATOR_URL || 
       (process.env.NODE_ENV === 'development' 
@@ -39,7 +43,17 @@ const nextConfig = {
         destination: `${docGenUrl}/:path*`
       }
     ]
-  }
+  },
+  // Additional Netlify-specific configuration
+  trailingSlash: false,
+  reactStrictMode: true,
+  // Set to true for Netlify deployments
+  distDir: '.next',
+  generateBuildId: async () => {
+    // Generate a stable build ID for Netlify
+    return 'netlify-build-' + Date.now().toString();
+  },
+  poweredByHeader: false
 };
 
 module.exports = nextConfig; 
