@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { FiFileText, FiBriefcase, FiFile, FiUser, FiClipboard, FiHome } from 'react-icons/fi';
+import { FiFileText, FiBriefcase, FiFile, FiUser, FiClipboard, FiHome, FiCreditCard } from 'react-icons/fi';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
 // Define document types for the dashboard
@@ -10,37 +10,49 @@ const documents = [
   { 
     title: 'Offer Letter', 
     description: 'Generate offer letters for new employees',
-    path: '/dashboard/documents/offer-letter', 
+    path: '/document-generator/offer-letter', 
     icon: <FiFileText size={24} /> 
   },
   { 
     title: 'Appointment Letter', 
     description: 'Generate appointment letters for confirmed employees',
-    path: '/dashboard/documents/appointment-letter', 
+    path: '/document-generator/appointment-letter', 
     icon: <FiFileText size={24} /> 
   },
   { 
     title: 'Payslip Generator', 
     description: 'Generate monthly payslips for employees',
-    path: '/dashboard/documents/payslip', 
+    path: '/document-generator/payslip', 
     icon: <FiFile size={24} /> 
   },
   { 
     title: 'Relieving Letter', 
     description: 'Generate relieving letters for leaving employees',
-    path: '/dashboard/documents/relieving-letter', 
+    path: '/document-generator/relieving-letter', 
     icon: <FiFileText size={24} /> 
   },
   { 
     title: 'Appraisal Letter', 
     description: 'Generate appraisal letters for promoted employees',
-    path: '/dashboard/documents/appraisal-letter', 
+    path: '/document-generator/appraisal-letter', 
     icon: <FiClipboard size={24} /> 
+  },
+  { 
+    title: 'Bank Statement', 
+    description: 'Generate bank statements for employees',
+    path: '/document-generator/bank-statement', 
+    icon: <FiCreditCard size={24} /> 
+  },
+  { 
+    title: 'Manage Bank', 
+    description: 'View and update bank information details',
+    path: '/document-generator/manage-bank', 
+    icon: <FiBriefcase size={24} /> 
   },
   { 
     title: 'Manage Company', 
     description: 'View and update company information details',
-    path: '/dashboard/documents/company-card', 
+    path: '/document-generator/manage-company', 
     icon: <FiBriefcase size={24} /> 
   },
 ];
@@ -49,14 +61,9 @@ export default function DocumentsPage() {
   return (
     <DashboardLayout>
       <div className="p-6">
-        <div className="flex justify-between items-center mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">Document Generator</h1>
-            <p className="text-slate-800">Generate HR documents with customizable templates</p>
-          </div>
-          <Link href="/dashboard/documents/v2" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-            Try Version 2
-          </Link>
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-800">Document Generator</h1>
+          <p className="text-slate-800">Generate HR documents with customizable templates</p>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

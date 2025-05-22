@@ -143,9 +143,7 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
             
             <h1 className="text-xl font-bold text-gray-800 text-center flex-1">
               Employment Details
-              <span className="ml-2 text-sm font-normal text-gray-500">
-                #{employment.employmentId || id.substring(0, 8)}
-              </span>
+            
             </h1>
             
             <div className="flex items-center gap-2">
@@ -377,199 +375,219 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
         </h2>
         
         <div className="bg-white rounded-lg shadow p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div>
-              <p className="text-lg font-medium text-gray-900">{employment.salaryId || '-'}</p>
-              <p className="text-sm text-gray-500">Salary ID</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.salary ? new Intl.NumberFormat('en-IN', {
-                  style: 'currency',
-                  currency: 'INR',
-                  maximumFractionDigits: 0
-                }).format(employment.salary).replace('₹', '').trim() : '-'} 
-                {employment.salary ? '/' + (employment.paymentFrequency === 'monthly' ? 'yr' : employment.paymentFrequency) : ''}
-              </p>
-              <p className="text-sm text-gray-500">Salary per annum</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.salaryPerMonth 
-                  ? new Intl.NumberFormat('en-IN', {
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Item
+                  </th>
+                  <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Value
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Salary ID</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{employment.salaryId || '-'}</td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Salary per annum</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.salary ? new Intl.NumberFormat('en-IN', {
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.salaryPerMonth).replace('₹', '').trim()
-                  : employment.salary 
-                    ? new Intl.NumberFormat('en-IN', {
-                        style: 'currency',
-                        currency: 'INR',
-                        maximumFractionDigits: 0
-                      }).format(employment.salary / 12).replace('₹', '').trim()
-                    : '-'} 
-                {(employment.salaryPerMonth || employment.salary) ? '/mo' : ''}
-              </p>
-              <p className="text-sm text-gray-500">Salary per month</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.basic 
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      maximumFractionDigits: 0
-                    }).format(employment.basic).replace('₹', '').trim()
-                  : '-'}
-              </p>
-              <p className="text-sm text-gray-500">Basic</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.da 
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      maximumFractionDigits: 0
-                    }).format(employment.da).replace('₹', '').trim()
-                  : '-'}
-              </p>
-              <p className="text-sm text-gray-500">DA (Dearness Allowance)</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.hra 
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      maximumFractionDigits: 0
-                    }).format(employment.hra).replace('₹', '').trim()
-                  : '-'}
-              </p>
-              <p className="text-sm text-gray-500">HRA (House Rent Allowance)</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.pf 
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      maximumFractionDigits: 0
-                    }).format(employment.pf).replace('₹', '').trim()
-                  : '-'}
-              </p>
-              <p className="text-sm text-gray-500">PF (Provident Fund)</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.medicalAllowance 
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      maximumFractionDigits: 0
-                    }).format(employment.medicalAllowance).replace('₹', '').trim()
-                  : '-'}
-              </p>
-              <p className="text-sm text-gray-500">Medical Allowance</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.transport 
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      maximumFractionDigits: 0
-                    }).format(employment.transport).replace('₹', '').trim()
-                  : '-'}
-              </p>
-              <p className="text-sm text-gray-500">Transport</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.gratuity 
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      maximumFractionDigits: 0
-                    }).format(employment.gratuity).replace('₹', '').trim()
-                  : '-'}
-              </p>
-              <p className="text-sm text-gray-500">Gratuity</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">{employment.totalLeaves || '-'} {employment.totalLeaves ? 'days/year' : ''}</p>
-              <p className="text-sm text-gray-500">Total Leaves</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">{employment.salaryCreditDate || '-'}</p>
-              <p className="text-sm text-gray-500">Salary Credit Date</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">{employment.payableDays || '-'}</p>
-              <p className="text-sm text-gray-500">Payable Days</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900 capitalize">{employment.paymentMode || '-'}</p>
-              <p className="text-sm text-gray-500">Payment Mode</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.additionalAllowance 
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      maximumFractionDigits: 0
-                    }).format(employment.additionalAllowance).replace('₹', '').trim()
-                  : '-'}
-              </p>
-              <p className="text-sm text-gray-500">Additional Allowance</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.specialAllowance 
-                  ? new Intl.NumberFormat('en-IN', {
-                      style: 'currency',
-                      currency: 'INR',
-                      maximumFractionDigits: 0
-                    }).format(employment.specialAllowance).replace('₹', '').trim()
-                  : '-'}
-              </p>
-              <p className="text-sm text-gray-500">Special Allowance</p>
-            </div>
-            
-            <div>
-              <p className="text-lg font-medium text-gray-900 capitalize">
-                {employment.paymentFrequency ? (
-                  employment.paymentFrequency.includes('-') ?
-                    employment.paymentFrequency.split('-').map(word => 
-                      word.charAt(0).toUpperCase() + word.slice(1)
-                    ).join(' ') :
-                    employment.paymentFrequency.charAt(0).toUpperCase() + employment.paymentFrequency.slice(1)
-                ) : '-'}
-              </p>
-              <p className="text-sm text-gray-500">Payment Frequency</p>
-            </div>
+                    }).format(employment.salary).replace('₹', '').trim() : '-'} 
+                    {employment.salary ? '/' + (employment.paymentFrequency === 'monthly' ? 'yr' : employment.paymentFrequency) : ''}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Salary per month</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.salaryPerMonth 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.salaryPerMonth).replace('₹', '').trim()
+                      : employment.salary 
+                        ? new Intl.NumberFormat('en-IN', {
+                            style: 'currency',
+                            currency: 'INR',
+                            maximumFractionDigits: 0
+                          }).format(employment.salary / 12).replace('₹', '').trim()
+                        : '-'} 
+                    {(employment.salaryPerMonth || employment.salary) ? '/mo' : ''}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Basic</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.basic 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.basic).replace('₹', '').trim()
+                      : '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">DA (Dearness Allowance)</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.da 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.da).replace('₹', '').trim()
+                      : '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">HRA (House Rent Allowance)</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.hra 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.hra).replace('₹', '').trim()
+                      : '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">PF (Provident Fund)</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.pf 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.pf).replace('₹', '').trim()
+                      : '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Medical Allowance</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.medicalAllowance 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.medicalAllowance).replace('₹', '').trim()
+                      : '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Transport</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.transport 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.transport).replace('₹', '').trim()
+                      : '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Gratuity</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.gratuity 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.gratuity).replace('₹', '').trim()
+                      : '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Total Leaves</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.totalLeaves || '-'} {employment.totalLeaves ? 'days/year' : ''}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Salary Credit Date</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.salaryCreditDate || '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Payable Days</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.payableDays || '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Payment Mode</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                    {employment.paymentMode || '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Additional Allowance</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.additionalAllowance 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.additionalAllowance).replace('₹', '').trim()
+                      : '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Special Allowance</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {employment.specialAllowance 
+                      ? new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.specialAllowance).replace('₹', '').trim()
+                      : '-'}
+                  </td>
+                </tr>
+                
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">Payment Frequency</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 capitalize">
+                    {employment.paymentFrequency ? (
+                      employment.paymentFrequency.includes('-') ?
+                        employment.paymentFrequency.split('-').map(word => 
+                          word.charAt(0).toUpperCase() + word.slice(1)
+                        ).join(' ') :
+                        employment.paymentFrequency.charAt(0).toUpperCase() + employment.paymentFrequency.slice(1)
+                    ) : '-'}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
       
-      {/* Job Details */}
-    
     </DashboardLayout>
   );
 } 

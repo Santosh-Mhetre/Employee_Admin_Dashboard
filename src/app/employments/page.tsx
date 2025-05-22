@@ -149,15 +149,18 @@ export default function EmploymentsPage() {
         <h1 className="text-2xl font-bold text-gray-800">Employments</h1>
         <Link
           href="/employments/add"
-          className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-blue-700"
+          className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-700"
         >
           <FiPlus /> Add Employment
         </Link>
       </div>
 
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="p-4 border-b">
-          <div className="relative">
+        <div className="p-4 border-b flex justify-between items-center">
+          <div className="text-gray-700 font-medium">
+        Total:     {filteredEmployments.length}  {filteredEmployments.length === 1 ? 'Employment' : 'Employments'}  
+          </div>
+          <div className="relative w-64">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <FiSearch className="text-gray-400" />
             </div>

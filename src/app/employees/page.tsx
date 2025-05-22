@@ -99,7 +99,7 @@ export default function EmployeesPage() {
         <h1 className="text-2xl font-bold text-gray-800">Employees</h1>
         <Link
           href="/employees/add"
-          className="bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-blue-700"
+          className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-700"
         >
           <FiPlus /> Add Employee
         </Link>

@@ -3,17 +3,13 @@
 import React from 'react';
 import { useParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
+import DashboardLayout from '@/components/layout/DashboardLayout';
 
-// Dynamically import document components to avoid server-side rendering issues
-const OfferLetter = dynamic(() => import('@/app/doc_pages/pages/OfferLetter'), { ssr: false });
-const AppointmentLetter = dynamic(() => import('@/app/doc_pages/pages/AppointmentLetter'), { ssr: false });
-const RelievingLetter = dynamic(() => import('@/app/doc_pages/pages/RelievingLetter'), { ssr: false });
-const AppraisalLetter = dynamic(() => import('@/app/doc_pages/pages/AppraisalLetter'), { ssr: false });
-const IncrementLetter = dynamic(() => import('@/app/doc_pages/pages/IncrementLetter'), { ssr: false });
-const PaySlipGenerator = dynamic(() => import('@/app/doc_pages/pages/PaySlipGenerator'), { ssr: false });
-const ManageCompany = dynamic(() => import('@/app/doc_pages/pages/ManageCompany'), { ssr: false });
-const ManageStudent = dynamic(() => import('@/app/doc_pages/pages/ManageStudent'), { ssr: false });
+// Import the regular Home component since V2 version might not exist
 const Home = dynamic(() => import('@/app/doc_pages/pages/Home'), { ssr: false });
+
+// Import both V1 and V2 components
+const ManageCompany = dynamic(() => import('@/app/doc_pages/pages/ManageCompany'), { ssr: false });
 
 // V2 Document Components
 const OfferLetterV2 = dynamic(() => import('@/app/doc_pages/pages/v2/OfferLetter'), { ssr: false });
@@ -29,62 +25,39 @@ const DocumentGeneratorPage = () => {
   const params = useParams();
   const fullPath = params.type as string;
   
-  // Check if this is a v2 document type
-  const isV2 = fullPath.startsWith('v2/');
-  const docType = isV2 ? fullPath.replace('v2/', '') : fullPath;
+  // Handle both direct paths and v2/ prefixed paths
+  const docType = fullPath.startsWith('v2/') ? fullPath.replace('v2/', '') : fullPath;
 
   // Map document type to the appropriate component
   const renderDocumentComponent = () => {
-    // V2 documents
-    if (isV2) {
-      switch (docType) {
-        case 'offer-letter':
-          return <OfferLetterV2 />;
-        case 'appointment-letter':
-          return <AppointmentLetterV2 />;
-        case 'relieving-letter':
-          return <RelievingLetterV2 />;
-        case 'appraisal-letter':
-          return <AppraisalLetterV2 />;
-        case 'payslip':
-          return <PaySlipGeneratorV2 />;
-        case 'bank-statement':
-          return <BankStatementV2 />;
-        case 'manage-bank':
-          return <ManageBankV2 />;
-        default:
-          return <Home />;
-      }
-    }
-    
-    // Standard documents (v1)
     switch (docType) {
       case 'offer-letter':
-        return <OfferLetter />;
+        return <OfferLetterV2 />;
       case 'appointment-letter':
-        return <AppointmentLetter />;
+        return <AppointmentLetterV2 />;
       case 'relieving-letter':
-        return <RelievingLetter />;
+        return <RelievingLetterV2 />;
       case 'appraisal-letter':
-        return <AppraisalLetter />;
-      case 'increment-letter':
-        return <IncrementLetter />;
+        return <AppraisalLetterV2 />;
       case 'payslip':
-        return <PaySlipGenerator />;
+        return <PaySlipGeneratorV2 />;
+      case 'bank-statement':
+        return <BankStatementV2 />;
+      case 'manage-bank':
+        return <ManageBankV2 />;
       case 'manage-company':
         return <ManageCompany />;
-      case 'manage-student':
-        return <ManageStudent />;
-      case 'home':
       default:
         return <Home />;
     }
   };
 
   return (
-    <div className="document-generator-container">
-      {renderDocumentComponent()}
-    </div>
+    <DashboardLayout>
+      <div className="document-generator-container p-4">
+        {renderDocumentComponent()}
+      </div>
+    </DashboardLayout>
   );
 };
 
