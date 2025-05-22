@@ -7,6 +7,23 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  font-size: 12px !important;
+}
+
+/* Set all text elements to use 12px font size */
+@layer base {
+  html, body, p, h1, h2, h3, h4, h5, h6, span, div, 
+  a, button, input, select, textarea, li, td, th {
+    font-size: 12px !important;
+  }
+  
+  h1 {
+    font-size: 1.5rem !important; /* 18px */
+  }
+  
+  h2 {
+    font-size: 1.25rem !important; /* 15px */
+  }
 }
 
 @theme inline {

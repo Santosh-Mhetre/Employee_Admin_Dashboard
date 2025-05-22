@@ -6,8 +6,9 @@ import { useForm } from 'react-hook-form';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { addEmployment, getEmployees } from '@/utils/firebaseUtils';
 import { Employment, Employee } from '@/types';
-import { FiSave, FiX } from 'react-icons/fi';
+import { FiSave, FiX, FiArrowLeft } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
+import Link from 'next/link';
 
 interface EmploymentFormData extends Omit<Employment, 'id'> {
   // Add all the fields we need
@@ -161,14 +162,32 @@ export default function AddEmploymentPage() {
   return (
     <DashboardLayout>
       <Toaster position="top-center" />
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Add New Employment</h1>
-        <button
-          onClick={() => router.back()}
-          className="text-gray-600 hover:text-gray-800"
+      
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center text-sm text-gray-600 mb-4">
+        <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
+        <span className="mx-2">/</span>
+        <Link href="/employments" className="hover:text-blue-600">Employments</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-800 font-medium">Add New Employment</span>
+      </div>
+      
+      <div className="flex justify-between items-center mb-6">
+        <Link
+          href="/employments"
+          className="px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-1"
         >
-          <FiX size={24} />
-        </button>
+          <FiArrowLeft size={14} /> Back
+        </Link>
+        
+        <h1 className="text-xl font-bold text-gray-800 text-center flex-1">
+          Add New Employment
+        </h1>
+        
+        <div className="px-3 py-1 opacity-0">
+          {/* Empty div for spacing */}
+          <FiArrowLeft size={14} className="invisible" />
+        </div>
       </div>
 
       {error && (
@@ -604,111 +623,20 @@ export default function AddEmploymentPage() {
               </div>
             </div>
 
-            {/* Job Details Section */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <h2 className="text-lg font-medium text-gray-800 mb-4 border-l-4 border-purple-500 pl-2">Job Details</h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Job Title*
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Software Engineer"
-                    {...register('jobTitle', { 
-                      required: 'Job title is required' 
-                    })}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  />
-                  {errors.jobTitle && (
-                    <p className="mt-1 text-sm text-red-600">{errors.jobTitle.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Department
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Engineering"
-                    {...register('department')}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. Headquarters"
-                    {...register('location')}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Reporting Manager
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Manager's name"
-                    {...register('reportingManager')}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Employment Type*
-                  </label>
-                  <select
-                    {...register('employmentType', { required: 'Employment type is required' })}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  >
-                    <option value="full-time">Full Time</option>
-                    <option value="part-time">Part Time</option>
-                    <option value="contract">Contract</option>
-                    <option value="internship">Internship</option>
-                  </select>
-                  {errors.employmentType && (
-                    <p className="mt-1 text-sm text-red-600">{errors.employmentType.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Work Schedule
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. 9:00 AM - 6:00 PM"
-                    {...register('workSchedule')}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  />
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-end">
-              <button
-                type="button"
-                onClick={() => router.back()}
-                className="mr-4 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            <div className="flex justify-between gap-4 mt-6">
+              <Link
+                href="/employments"
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center gap-1"
               >
                 Cancel
-              </button>
+              </Link>
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50"
+                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2 disabled:opacity-50"
               >
                 <FiSave />
-                {isSubmitting ? 'Saving...' : 'Save Employment'}
+                {isSubmitting ? 'Saving...' : 'Add Employment'}
               </button>
             </div>
           </form>

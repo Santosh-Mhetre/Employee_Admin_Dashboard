@@ -2,10 +2,37 @@ import { collection, addDoc, updateDoc, deleteDoc, doc, getDocs, getDoc, query, 
 import { db } from '../firebase/config';
 import { Employee, Employment } from '../types';
 
+// Simple cache implementation
+const cache = {
+  employees: null as Employee[] | null,
+  employeesTimestamp: 0,
+  employments: null as Employment[] | null,
+  employmentsTimestamp: 0,
+  employeeDetails: new Map<string, {data: Employee, timestamp: number}>(),
+  employmentDetails: new Map<string, {data: Employment, timestamp: number}>(),
+  cacheDuration: 60000, // 1 minute cache
+  
+  clearCache() {
+    this.employees = null;
+    this.employments = null;
+    this.employeesTimestamp = 0;
+    this.employmentsTimestamp = 0;
+    this.employeeDetails.clear();
+    this.employmentDetails.clear();
+  },
+  
+  isCacheValid(timestamp: number) {
+    return Date.now() - timestamp < this.cacheDuration;
+  }
+};
+
 // Employee CRUD operations
 export const addEmployee = async (employeeData: Omit<Employee, 'id'>) => {
   try {
     const docRef = await addDoc(collection(db, 'employees'), employeeData);
+    // Invalidate cache after adding new data
+    cache.employees = null;
+    cache.employeesTimestamp = 0;
     return { id: docRef.id, ...employeeData };
   } catch (error) {
     console.error('Error adding employee:', error);
@@ -15,8 +42,12 @@ export const addEmployee = async (employeeData: Omit<Employee, 'id'>) => {
 
 export const updateEmployee = async (id: string, employeeData: Partial<Employee>) => {
   try {
-    const employeeRef = doc(db, 'employees', id);
-    await updateDoc(employeeRef, employeeData);
+    const docRef = doc(db, 'employees', id);
+    await updateDoc(docRef, employeeData);
+    // Invalidate cache after updating data
+    cache.employees = null;
+    cache.employeesTimestamp = 0;
+    cache.employeeDetails.delete(id);
     return { id, ...employeeData };
   } catch (error) {
     console.error('Error updating employee:', error);
@@ -27,7 +58,11 @@ export const updateEmployee = async (id: string, employeeData: Partial<Employee>
 export const deleteEmployee = async (id: string) => {
   try {
     await deleteDoc(doc(db, 'employees', id));
-    return true;
+    // Invalidate cache after deleting data
+    cache.employees = null;
+    cache.employeesTimestamp = 0;
+    cache.employeeDetails.delete(id);
+    return id;
   } catch (error) {
     console.error('Error deleting employee:', error);
     throw error;
@@ -36,11 +71,23 @@ export const deleteEmployee = async (id: string) => {
 
 export const getEmployees = async () => {
   try {
+    // Check if we have a valid cache
+    if (cache.employees && cache.isCacheValid(cache.employeesTimestamp)) {
+      console.log('Using cached employees data');
+      return cache.employees;
+    }
+    
+    console.log('Fetching employees from Firestore');
     const querySnapshot = await getDocs(collection(db, 'employees'));
     const employees: Employee[] = [];
     querySnapshot.forEach((doc) => {
       employees.push({ id: doc.id, ...doc.data() } as Employee);
     });
+    
+    // Update cache
+    cache.employees = employees;
+    cache.employeesTimestamp = Date.now();
+    
     return employees;
   } catch (error) {
     console.error('Error getting employees:', error);
@@ -50,11 +97,27 @@ export const getEmployees = async () => {
 
 export const getEmployee = async (id: string) => {
   try {
+    // Check if we have a valid cache for this employee
+    const cached = cache.employeeDetails.get(id);
+    if (cached && cache.isCacheValid(cached.timestamp)) {
+      console.log(`Using cached data for employee ${id}`);
+      return cached.data;
+    }
+    
+    console.log(`Fetching employee ${id} from Firestore`);
     const docRef = doc(db, 'employees', id);
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as Employee;
+      const employee = { id: docSnap.id, ...docSnap.data() } as Employee;
+      
+      // Update cache
+      cache.employeeDetails.set(id, {
+        data: employee,
+        timestamp: Date.now()
+      });
+      
+      return employee;
     } else {
       throw new Error('Employee not found');
     }
@@ -68,6 +131,9 @@ export const getEmployee = async (id: string) => {
 export const addEmployment = async (employmentData: Omit<Employment, 'id'>) => {
   try {
     const docRef = await addDoc(collection(db, 'employments'), employmentData);
+    // Invalidate cache
+    cache.employments = null;
+    cache.employmentsTimestamp = 0;
     return { id: docRef.id, ...employmentData };
   } catch (error) {
     console.error('Error adding employment:', error);
@@ -77,8 +143,12 @@ export const addEmployment = async (employmentData: Omit<Employment, 'id'>) => {
 
 export const updateEmployment = async (id: string, employmentData: Partial<Employment>) => {
   try {
-    const employmentRef = doc(db, 'employments', id);
-    await updateDoc(employmentRef, employmentData);
+    const docRef = doc(db, 'employments', id);
+    await updateDoc(docRef, employmentData);
+    // Invalidate cache
+    cache.employments = null;
+    cache.employmentsTimestamp = 0;
+    cache.employmentDetails.delete(id);
     return { id, ...employmentData };
   } catch (error) {
     console.error('Error updating employment:', error);
@@ -89,7 +159,11 @@ export const updateEmployment = async (id: string, employmentData: Partial<Emplo
 export const deleteEmployment = async (id: string) => {
   try {
     await deleteDoc(doc(db, 'employments', id));
-    return true;
+    // Invalidate cache
+    cache.employments = null;
+    cache.employmentsTimestamp = 0;
+    cache.employmentDetails.delete(id);
+    return id;
   } catch (error) {
     console.error('Error deleting employment:', error);
     throw error;
@@ -98,11 +172,23 @@ export const deleteEmployment = async (id: string) => {
 
 export const getEmployments = async () => {
   try {
+    // Check if we have a valid cache
+    if (cache.employments && cache.isCacheValid(cache.employmentsTimestamp)) {
+      console.log('Using cached employments data');
+      return cache.employments;
+    }
+    
+    console.log('Fetching employments from Firestore');
     const querySnapshot = await getDocs(collection(db, 'employments'));
     const employments: Employment[] = [];
     querySnapshot.forEach((doc) => {
       employments.push({ id: doc.id, ...doc.data() } as Employment);
     });
+    
+    // Update cache
+    cache.employments = employments;
+    cache.employmentsTimestamp = Date.now();
+    
     return employments;
   } catch (error) {
     console.error('Error getting employments:', error);
@@ -112,11 +198,27 @@ export const getEmployments = async () => {
 
 export const getEmployment = async (id: string) => {
   try {
+    // Check if we have a valid cache for this employment
+    const cached = cache.employmentDetails.get(id);
+    if (cached && cache.isCacheValid(cached.timestamp)) {
+      console.log(`Using cached data for employment ${id}`);
+      return cached.data;
+    }
+    
+    console.log(`Fetching employment ${id} from Firestore`);
     const docRef = doc(db, 'employments', id);
     const docSnap = await getDoc(docRef);
     
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as Employment;
+      const employment = { id: docSnap.id, ...docSnap.data() } as Employment;
+      
+      // Update cache
+      cache.employmentDetails.set(id, {
+        data: employment,
+        timestamp: Date.now()
+      });
+      
+      return employment;
     } else {
       throw new Error('Employment not found');
     }
@@ -139,4 +241,9 @@ export const getEmploymentsByEmployee = async (employeeId: string) => {
     console.error('Error getting employments by employee:', error);
     throw error;
   }
+};
+
+// Add function to clear cache when needed (e.g., on logout)
+export const clearFirestoreCache = () => {
+  cache.clearCache();
 }; 

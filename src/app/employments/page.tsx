@@ -8,6 +8,32 @@ import { getEmployments, deleteEmployment, getEmployee } from '@/utils/firebaseU
 import { Employment, Employee } from '@/types';
 import toast, { Toaster } from 'react-hot-toast';
 
+// Calculate duration between two dates
+const calculateDuration = (startDate: string, endDate?: string): string => {
+  const start = new Date(startDate);
+  const end = endDate ? new Date(endDate) : new Date();
+  
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+  const years = Math.floor(diffDays / 365);
+  const months = Math.floor((diffDays % 365) / 30);
+  const days = Math.floor((diffDays % 365) % 30);
+  
+  let duration = '';
+  if (years > 0) {
+    duration += `${years} year${years > 1 ? 's' : ''} `;
+  }
+  if (months > 0 || years > 0) {
+    duration += `${months} month${months > 1 ? 's' : ''} `;
+  }
+  if (days > 0 || (months === 0 && years === 0)) {
+    duration += `${days} day${days > 1 ? 's' : ''}`;
+  }
+  
+  return duration.trim();
+};
+
 export default function EmploymentsPage() {
   const [employments, setEmployments] = useState<Employment[]>([]);
   const [employeeNames, setEmployeeNames] = useState<Record<string, string>>({});
@@ -111,6 +137,14 @@ export default function EmploymentsPage() {
   return (
     <DashboardLayout>
       <Toaster position="top-center" />
+      
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center text-sm text-gray-600 mb-4">
+        <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-800 font-medium">Employments</span>
+      </div>
+      
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Employments</h1>
         <Link
@@ -147,19 +181,19 @@ export default function EmploymentsPage() {
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Employee
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Contract Type
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Duration
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Salary
                   </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Actions
                   </th>
                 </tr>
@@ -167,21 +201,13 @@ export default function EmploymentsPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredEmployments.map((employment) => (
                   <tr key={employment.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm font-medium text-gray-900">
                         {employeeNames[employment.employeeId] || 'Unknown Employee'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          employment.contractType === 'full-time'
-                            ? 'bg-green-100 text-green-800'
-                            : employment.contractType === 'part-time'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}
-                      >
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <span className="text-xs leading-5 font-semibold text-black">
                         {employment.contractType && employment.contractType.includes('-') ?
                           employment.contractType.split('-').map(word => 
                             word.charAt(0).toUpperCase() + word.slice(1)
@@ -191,60 +217,74 @@ export default function EmploymentsPage() {
                             'Unknown'}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">
-                        {new Date(employment.startDate).toLocaleDateString()}
+                        {new Date(employment.startDate).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        })}
                         {employment.endDate && (
-                          <> - {new Date(employment.endDate).toLocaleDateString()}</>
+                          <> - {new Date(employment.endDate).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                          })}</>
                         )}
+                        <div className="text-xs text-gray-500 mt-1">
+                          {calculateDuration(employment.startDate, employment.endDate)}
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">
-                        {formatCurrency(employment.salary)} / {
-                          employment.paymentFrequency ? (
-                            employment.paymentFrequency.includes('-') ?
-                              employment.paymentFrequency.split('-').map(word => 
-                                word.charAt(0).toUpperCase() + word.slice(1)
-                              ).join(' ') :
-                              employment.paymentFrequency.charAt(0).toUpperCase() + employment.paymentFrequency.slice(1)
-                          ) : 'Monthly'
-                        }
+                        {new Intl.NumberFormat('en-IN', {
+                          style: 'currency',
+                          currency: 'INR',
+                          maximumFractionDigits: 0
+                        }).format(employment.salary).replace('₹', '').trim()}
+                        /{employment.paymentFrequency === 'monthly' ? 'mo' : 
+                          employment.paymentFrequency === 'weekly' ? 'wk' : 
+                          employment.paymentFrequency === 'bi-weekly' ? 'bw' : 
+                          employment.paymentFrequency}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       {deleteConfirm === employment.id ? (
-                        <div className="flex items-center justify-end space-x-2">
+                        <div className="flex items-center justify-center space-x-2">
                           <button
                             onClick={() => confirmDelete(employment.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded-md text-xs"
                           >
                             Confirm
                           </button>
                           <button
                             onClick={cancelDelete}
-                            className="text-gray-600 hover:text-gray-900"
+                            className="bg-gray-100 text-gray-600 hover:bg-gray-200 px-2 py-1 rounded-md text-xs"
                           >
                             Cancel
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-end space-x-2">
+                        <div className="flex items-center justify-center gap-2">
                           <Link
                             href={`/employments/${employment.id}`}
-                            className="text-green-600 hover:text-green-900"
+                            className="border border-blue-500 text-blue-600 hover:bg-blue-50 p-2 rounded text-xs flex items-center"
+                            title="View Employment Details"
                           >
                             <FiEye className="w-4 h-4" />
                           </Link>
                           <Link
                             href={`/employments/${employment.id}/edit`}
-                            className="text-blue-600 hover:text-blue-900"
+                            className="border border-amber-500 text-amber-600 hover:bg-amber-50 p-2 rounded text-xs flex items-center"
+                            title="Edit Employment"
                           >
                             <FiEdit className="w-4 h-4" />
                           </Link>
                           <button
                             onClick={() => handleDeleteClick(employment.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="border border-red-500 text-red-600 hover:bg-red-50 p-2 rounded text-xs flex items-center"
+                            title="Delete Employment"
                           >
                             <FiTrash2 className="w-4 h-4" />
                           </button>

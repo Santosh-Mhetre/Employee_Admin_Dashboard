@@ -11,6 +11,7 @@ import {
   signInWithCredential
 } from 'firebase/auth';
 import { auth } from '../firebase/config';
+import { clearFirestoreCache } from '@/utils/firebaseUtils';
 
 // Extend Window interface to include recaptchaVerifier
 declare global {
@@ -97,8 +98,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const logout = () => {
-    return signOut(auth);
+  const logout = async () => {
+    try {
+      // Clear Firebase cache first to ensure data consistency
+      clearFirestoreCache();
+      // Then sign out from Firebase auth
+      await signOut(auth);
+    } catch (error) {
+      console.error('Error during logout:', error);
+      throw error;
+    }
   };
 
   const value = {

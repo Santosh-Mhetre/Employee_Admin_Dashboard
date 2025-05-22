@@ -6,7 +6,7 @@ import { useForm } from 'react-hook-form';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { addEmployee } from '@/utils/firebaseUtils';
 import { Employee } from '@/types';
-import { FiSave, FiX } from 'react-icons/fi';
+import { FiSave, FiX, FiArrowLeft } from 'react-icons/fi';
 import Link from 'next/link';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -42,14 +42,32 @@ export default function AddEmployeePage() {
   return (
     <DashboardLayout>
       <Toaster position="top-center" />
-      <div className="mb-6 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-gray-800">Add New Employee</h1>
+      
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center text-sm text-gray-600 mb-4">
+        <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
+        <span className="mx-2">/</span>
+        <Link href="/employees" className="hover:text-blue-600">Employees</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-800 font-medium">Add New Employee</span>
+      </div>
+      
+      <div className="flex justify-between items-center mb-6">
         <Link
           href="/employees"
-          className="text-gray-600 hover:text-gray-800"
+          className="px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-1"
         >
-          <FiX size={24} />
+          <FiArrowLeft size={14} /> Back
         </Link>
+        
+        <h1 className="text-xl font-bold text-gray-800 text-center flex-1">
+          Add New Employee
+        </h1>
+        
+        <div className="px-3 py-1 opacity-0">
+          {/* Empty div for spacing */}
+          <FiArrowLeft size={14} className="invisible" />
+        </div>
       </div>
 
       {error && (
@@ -807,10 +825,10 @@ export default function AddEmployeePage() {
           </div>
         </div>
 
-        <div className="flex justify-end gap-4 mt-6">
+        <div className="flex justify-between gap-4 mt-6">
           <Link
             href="/employees"
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center gap-1"
           >
             Cancel
           </Link>

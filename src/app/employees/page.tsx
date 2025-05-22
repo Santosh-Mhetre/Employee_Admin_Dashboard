@@ -90,6 +90,11 @@ export default function EmployeesPage() {
   return (
     <DashboardLayout>
       <Toaster position="top-center" />
+      <div className="flex items-center text-sm text-gray-600 mb-4">
+        <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-800 font-medium">Employees</span>
+      </div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-800">Employees</h1>
         <Link
@@ -125,26 +130,49 @@ export default function EmployeesPage() {
             {searchTerm ? 'No employees match your search' : 'No employees found. Add your first employee!'}
           </div>
         ) : (
-          <div className="overflow-x-auto">
+          <div className="overflow-x-auto scrollbar-thin">
+            <style jsx>{`
+              .scrollbar-thin::-webkit-scrollbar {
+                height: 6px;
+                width: 6px;
+              }
+              .scrollbar-thin::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 3px;
+              }
+              .scrollbar-thin::-webkit-scrollbar-thumb {
+                background: #ccc;
+                border-radius: 3px;
+              }
+              .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+                background: #aaa;
+              }
+            `}</style>
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Employee ID
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Status
+                  </th>
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Mobile
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Date of Joining
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Current Package
                   </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Salaries Credited
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
+                    Total Salaries
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Actions
                   </th>
                 </tr>
@@ -152,66 +180,46 @@ export default function EmployeesPage() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredEmployees.map((employee) => (
                   <tr key={employee.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex items-center">
-                        <div className="flex-shrink-0 h-10 w-10">
-                          {employee.imageUrl ? (
-                            <img
-                              className="h-10 w-10 rounded-full"
-                              src={employee.imageUrl}
-                              alt={employee.name}
-                            />
-                          ) : (
-                            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                              <span className="text-gray-500 font-medium">
-                                {employee.name?.charAt(0)}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-medium text-gray-900">{employee.name}</div>
-                          <div className="text-sm text-gray-500">
-                            {employee.employeeId || '-'}
-                            {employee.status && (
-                              <span
-                                className={`ml-2 px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                                  employee.status === 'active'
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-red-100 text-red-800'
-                                }`}
-                              >
-                                {employee.status.charAt(0).toUpperCase() + employee.status.slice(1)}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm font-medium text-gray-900">{employee.name}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      <div className="text-sm text-gray-500">{employee.employeeId || '-'}</div>
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
+                      {employee.status && (
+                        <span
+                          className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            employee.status === 'active'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
+                        >
+                          {employee.status.charAt(0).toUpperCase() + employee.status.slice(1)}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">{employee.phone || '-'}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">
-                        {employee.joinDate ? new Date(employee.joinDate).toLocaleDateString() : '-'}
+                        {employee.joinDate ? new Date(employee.joinDate).toLocaleDateString('en-GB', {
+                          day: '2-digit',
+                          month: 'short',
+                          year: 'numeric'
+                        }) : '-'}
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">
                         {/* This would come from employment data in a real app */}
-                        {new Intl.NumberFormat('en-IN', {
-                          style: 'currency',
-                          currency: 'INR'
-                        }).format(50000)}
+                        {((50000 * 12) / 100000).toFixed(1)} LPA
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">
-                        {/* This would come from salary slips in a real app */}
-                        {new Intl.NumberFormat('en-IN', {
-                          style: 'currency',
-                          currency: 'INR'
-                        }).format(600000)}
+                        12
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -219,46 +227,46 @@ export default function EmployeesPage() {
                         <div className="flex items-center justify-center space-x-2">
                           <button
                             onClick={() => confirmDelete(employee.id)}
-                            className="text-red-600 hover:text-red-900"
+                            className="bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded-md text-xs"
                           >
                             Confirm
                           </button>
                           <button
                             onClick={cancelDelete}
-                            className="text-gray-600 hover:text-gray-900"
+                            className="bg-gray-100 text-gray-600 hover:bg-gray-200 px-2 py-1 rounded-md text-xs"
                           >
                             Cancel
                           </button>
                         </div>
                       ) : (
-                        <div className="flex items-center justify-center space-x-3">
+                        <div className="flex items-center justify-center gap-2">
                           <Link
                             href={`/employees/${employee.id}`}
-                            className="text-blue-600 hover:text-blue-900 tooltip"
+                            className="border border-blue-500 text-blue-600 hover:bg-blue-50 p-2 rounded text-xs flex items-center"
                             title="View Employee Details"
                           >
-                            <FiEye className="w-5 h-5" />
+                            <FiEye className="w-4 h-4" />
                           </Link>
                           <Link
-                            href={`/employees/${employee.id}#employments`}
-                            className="text-green-600 hover:text-green-900 tooltip"
-                            title="View Employment History"
+                            href={`/employments?employeeId=${employee.id}`}
+                            className="border border-green-500 text-green-600 hover:bg-green-50 p-2 rounded text-xs flex items-center"
+                            title="View Employee Employments"
                           >
-                            <FiBriefcase className="w-5 h-5" />
+                            <FiBriefcase className="w-4 h-4" />
                           </Link>
                           <Link
                             href={`/employees/${employee.id}/edit`}
-                            className="text-amber-600 hover:text-amber-900 tooltip"
+                            className="border border-amber-500 text-amber-600 hover:bg-amber-50 p-2 rounded text-xs flex items-center"
                             title="Edit Employee"
                           >
-                            <FiEdit className="w-5 h-5" />
+                            <FiEdit className="w-4 h-4" />
                           </Link>
                           <button
                             onClick={() => handleDeleteClick(employee.id)}
-                            className="text-red-600 hover:text-red-900 tooltip"
+                            className="border border-red-500 text-red-600 hover:bg-red-50 p-2 rounded text-xs flex items-center"
                             title="Delete Employee"
                           >
-                            <FiTrash2 className="w-5 h-5" />
+                            <FiTrash2 className="w-4 h-4" />
                           </button>
                         </div>
                       )}

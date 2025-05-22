@@ -3,6 +3,7 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics } from 'firebase/analytics';
+import { getPerformance } from 'firebase/performance';
 
 // Your Firebase configuration
 const firebaseConfig = {
@@ -21,11 +22,16 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
 
-// Initialize Analytics only on client side
+// Initialize Analytics and Performance Monitoring if in browser environment
 let analytics = null;
+let performance = null;
+
+// Only initialize client-side services when in browser environment
 if (typeof window !== 'undefined') {
   analytics = getAnalytics(app);
+  performance = getPerformance(app);
 }
-export { analytics };
+
+export { analytics, performance };
 
 export default app; 

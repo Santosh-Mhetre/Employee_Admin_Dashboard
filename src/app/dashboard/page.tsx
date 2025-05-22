@@ -38,13 +38,6 @@ export default function DashboardPage() {
       icon: <FiUsers className="w-8 h-8 text-blue-500" />,
       link: '/employees',
       color: 'bg-blue-50'
-    },
-    {
-      title: 'Employments',
-      count: employmentCount,
-      icon: <FiBriefcase className="w-8 h-8 text-green-500" />,
-      link: '/employments',
-      color: 'bg-green-50'
     }
   ];
 
@@ -63,19 +56,23 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-4">
           {cards.map((card) => (
             <Link
               href={card.link}
               key={card.title}
-              className={`${card.color} p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow`}
+              className={`${card.color} p-3 rounded-md shadow-sm hover:shadow-md transition-shadow max-w-xs w-full`}
             >
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-slate-700 font-medium">{card.title}</p>
-                  <h3 className="text-3xl font-bold mt-2 text-gray-800">{card.count}</h3>
+                  <p className="text-slate-700 font-medium text-sm">{card.title}</p>
+                  <h3 className="text-xl font-bold mt-1 text-gray-800">{card.count}</h3>
                 </div>
-                <div>{card.icon}</div>
+                <div>
+                  {card.icon &&
+                    <span className="w-6 h-6 text-blue-500">{card.icon}</span>
+                  }
+                </div>
               </div>
             </Link>
           ))}
@@ -84,28 +81,16 @@ export default function DashboardPage() {
 
       <div className="mt-12">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 mt-12">
           <Link
             href="/employees/add"
-            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200"
+            className="bg-white p-3 rounded-md shadow-sm hover:shadow-md transition-shadow border border-gray-200 max-w-xs w-full"
           >
             <div className="flex items-center space-x-3">
               <div className="bg-blue-100 p-2 rounded-full">
                 <FiUsers className="w-5 h-5 text-blue-600" />
               </div>
               <span className="text-slate-800 font-medium">Add New Employee</span>
-            </div>
-          </Link>
-          
-          <Link
-            href="/employments/add"
-            className="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow border border-gray-200"
-          >
-            <div className="flex items-center space-x-3">
-              <div className="bg-green-100 p-2 rounded-full">
-                <FiBriefcase className="w-5 h-5 text-green-600" />
-              </div>
-              <span className="text-slate-800 font-medium">Create Employment</span>
             </div>
           </Link>
         </div>

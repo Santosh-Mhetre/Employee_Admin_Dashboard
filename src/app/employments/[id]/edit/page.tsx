@@ -173,15 +173,32 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
     <DashboardLayout>
       <Toaster position="top-center" />
       
-      {/* Header with Actions */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <Link href={`/employments/${id}`} className="text-blue-600 hover:underline flex items-center gap-1 text-sm mb-1">
-              <FiArrowLeft size={14} /> Back to Employment Details
-            </Link>
-            <h1 className="text-2xl font-bold text-gray-800">Edit Employment</h1>
-          </div>
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center text-sm text-gray-600 mb-4">
+        <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
+        <span className="mx-2">/</span>
+        <Link href="/employments" className="hover:text-blue-600">Employments</Link>
+        <span className="mx-2">/</span>
+        <Link href={`/employments/${id}`} className="hover:text-blue-600">Employment Details</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-800 font-medium">Edit</span>
+      </div>
+      
+      <div className="flex justify-between items-center mb-6">
+        <Link
+          href={`/employments/${id}`}
+          className="px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-1"
+        >
+          <FiArrowLeft size={14} /> Back
+        </Link>
+        
+        <h1 className="text-xl font-bold text-gray-800 text-center flex-1">
+          Edit Employment
+        </h1>
+        
+        <div className="px-3 py-1 opacity-0">
+          {/* Empty div for spacing */}
+          <FiArrowLeft size={14} className="invisible" />
         </div>
       </div>
 
@@ -613,114 +630,21 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
           </div>
         </div>
 
-        {/* Job Details */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 border-l-4 border-purple-500 pl-2">Job Details</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Job Title
-              </label>
-              <input
-                type="text"
-                {...register('jobTitle')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="E.g., Software Developer"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Department
-              </label>
-              <input
-                type="text"
-                {...register('department')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="E.g., Engineering, HR"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Location
-              </label>
-              <input
-                type="text"
-                {...register('location')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Work location"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Reporting Manager
-              </label>
-              <input
-                type="text"
-                {...register('reportingManager')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Manager name"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Employment Type
-              </label>
-              <input
-                type="text"
-                {...register('employmentType')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="E.g., Permanent, Contract"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Work Schedule
-              </label>
-              <input
-                type="text"
-                {...register('workSchedule')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="E.g., 9 AM - 6 PM, Mon-Fri"
-              />
-            </div>
-            
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Benefits (comma separated)
-              </label>
-              <textarea
-                {...register('benefits')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="E.g., Health Insurance, Paid Leave, Retirement Plan"
-                rows={3}
-              ></textarea>
-              <p className="mt-1 text-xs text-gray-500">Enter benefits separated by commas</p>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white rounded-lg shadow-sm p-4 mb-6">
-          <div className="flex justify-end">
-            <Link
-              href={`/employments/${id}`}
-              className="mr-4 px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2 disabled:opacity-50"
-            >
-              <FiSave />
-              {isSubmitting ? 'Saving...' : 'Save Changes'}
-            </button>
-          </div>
+        <div className="flex justify-between gap-4 mt-6">
+          <Link
+            href={`/employments/${id}`}
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+          >
+            Cancel
+          </Link>
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2 disabled:opacity-50"
+          >
+            <FiSave />
+            {isSubmitting ? 'Saving...' : 'Save Changes'}
+          </button>
         </div>
       </form>
     </DashboardLayout>

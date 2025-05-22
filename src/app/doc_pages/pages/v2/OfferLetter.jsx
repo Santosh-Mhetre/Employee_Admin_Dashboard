@@ -593,61 +593,32 @@ function OfferLetterV2() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="form-group">
             <label className="block mb-2 text-sm font-medium text-slate-800">Employee Name</label>
-            <input
-              type="text"
+            <select
               name="employeeName"
               value={formData.employeeName}
               onChange={handleInputChange}
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+            >
+              <option value="">Select Employee</option>
+              {candidates.map(employee => (
+                <option key={employee.id} value={employee.name}>{employee.name}</option>
+              ))}
+            </select>
           </div>
           
           <div className="form-group">
             <label className="block mb-2 text-sm font-medium text-slate-800">Company</label>
             <select
-              name="companyName"
+              name="company"
               value={formData.companyName}
               onChange={handleInputChange}
               className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             >
               <option value="">Select Company</option>
               {companies.map(company => (
-                <option key={company.id} value={company.id}>{company.name}</option>
+                <option key={company.id} value={company.name}>{company.name}</option>
               ))}
             </select>
-          </div>
-          
-          <div className="form-group">
-            <label className="block mb-2 text-sm font-medium text-slate-800">Position</label>
-            <input
-              type="text"
-              name="designation"
-              value={formData.designation}
-              onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label className="block mb-2 text-sm font-medium text-slate-800">Join Date</label>
-            <input
-              type="date"
-              name="joiningDate"
-              value={formData.joiningDate}
-              onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          
-          <div className="form-group">
-            <label className="block mb-2 text-sm font-medium text-slate-800">Annual Salary (₹)</label>
-            <input
-              type="number"
-              name="lpa"
-              value={formData.lpa}
-              onChange={handleInputChange}
-              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
           </div>
         </div>
         
