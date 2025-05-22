@@ -13,14 +13,7 @@ const Sidebar = () => {
     setIsOpen(!isOpen);
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      // Redirect will be handled by the auth state change in the context
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
-  };
+  
 
   // Function to determine if a menu item is active
   const isActive = (path: string) => {
@@ -111,15 +104,7 @@ const Sidebar = () => {
           </nav>
           
           {/* Logout button at bottom of sidebar */}
-          <div className="mt-auto pt-4 border-t border-gray-700">
-            <button
-              onClick={handleLogout}
-              className="flex items-center gap-3 p-3 rounded-md transition-colors text-white hover:bg-gray-700 w-full cursor-pointer"
-            >
-              <FiLogOut className="w-5 h-5" />
-              <span>Logout</span>
-            </button>
-          </div>
+         
         </div>
       </div>
     </>
