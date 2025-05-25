@@ -1,0 +1,10 @@
+# Build output
+.next/
+out/
+
+# Node modules
+node_modules/
+
+# PDF components that have many warnings
+src/components/pdf/
+src/components/components/pdf/ 
