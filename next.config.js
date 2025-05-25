@@ -1,24 +1,52 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  swcMinify: true,
   compiler: {
     styledComponents: true,
   },
   images: {
-    domains: ['firebasestorage.googleapis.com'],
+    domains: [
+      'firebasestorage.googleapis.com',
+      'storage.googleapis.com',
+      'lh3.googleusercontent.com',
+      'localhost',
+      'employee-admin-c83e8.appspot.com',
+    ],
+    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   experimental: {
-    // Enable App directory features
-    appDir: true,
     optimizeCss: true,
     optimizePackageImports: ['react-icons', 'firebase'],
-    // Enable server components if used
-    serverComponents: true,
   },
   // Optimize build output
   poweredByHeader: false,
   compress: true,
+  
+  async rewrites() {
+    try {
+      // Get the document generator URL from environment variables or use defaults
+      const docGenUrl = process.env.DOCUMENT_GENERATOR_URL || 
+        (process.env.NODE_ENV === 'development' 
+          ? 'http://localhost:3001'
+          : 'https://document-generator.yourdomain.com');
+      
+      return [
+        {
+          source: '/document-generator/:path*',
+          destination: `${docGenUrl}/:path*`
+        }
+      ];
+    } catch (error) {
+      console.warn('Error in rewrites config:', error);
+      return [];
+    }
+  },
   
   // Add dynamic import to reduce initial JS bundle size
   webpack: (config, { dev, isServer }) => {

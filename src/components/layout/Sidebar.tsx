@@ -42,11 +42,11 @@ const Sidebar = () => {
       name: 'Employees',
       icon: <FiUsers className="w-5 h-5" />
     },
-    {
-      path: '/employments',
-      name: 'Employments',
-      icon: <FiBriefcase className="w-5 h-5" />
-    },
+    // {
+    //   path: '/employments',
+    //   name: 'Employments',
+    //   icon: <FiBriefcase className="w-5 h-5" />
+    // },
     {
       path: '/dashboard/documents',
       name: 'Documents',

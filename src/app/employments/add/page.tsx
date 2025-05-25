@@ -9,6 +9,7 @@ import { Employment, Employee } from '@/types';
 import { FiSave, FiX, FiArrowLeft } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
 import Link from 'next/link';
+import { SkeletonBreadcrumb, SkeletonHeader } from '@/components/ui/SkeletonLoader';
 
 interface EmploymentFormData extends Omit<Employment, 'id'> {
   // Add all the fields we need
@@ -18,12 +19,12 @@ interface EmploymentFormData extends Omit<Employment, 'id'> {
   ctc: number;
   inHandCtc: number;
   relievingCtc?: number;
-  isIT: boolean;
-  isResignation: boolean;
+  isPF: boolean;
+  designation: string;
   
   // Salary details
   salaryId: string;
-  salaryPerMonth: number;
+  salaryCreditedAmount: number;
   basic: number;
   da: number;
   hra: number;
@@ -42,6 +43,7 @@ interface EmploymentFormData extends Omit<Employment, 'id'> {
   jobTitle: string;
   department: string;
   location: string;
+  jobMode: 'remote' | 'onsite' | 'hybrid';
   reportingManager: string;
   employmentType: string;
   workSchedule: string;
@@ -52,16 +54,18 @@ export default function AddEmploymentPage() {
   const [error, setError] = useState<string | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
   
   const router = useRouter();
   
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<EmploymentFormData>({
+  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<EmploymentFormData>({
     defaultValues: {
       employmentType: 'full-time',
       paymentFrequency: 'monthly',
       paymentMode: 'bank-transfer',
-      isIT: true,
-      isResignation: false,
+      isPF: true,
+      designation: '',
+      jobMode: 'onsite',
       payableDays: 30,
       totalLeaves: 24,
       salaryCreditDate: '1st of every month',
@@ -84,6 +88,20 @@ export default function AddEmploymentPage() {
       try {
         const data = await getEmployees();
         setEmployees(data);
+        
+        // Check for employeeId in URL query params
+        const params = new URLSearchParams(window.location.search);
+        const employeeId = params.get('employeeId');
+        
+        if (employeeId) {
+          const foundEmployee = data.find(emp => emp.id === employeeId);
+          if (foundEmployee) {
+            setSelectedEmployee(foundEmployee);
+            setValue('employeeId', employeeId);
+          } else {
+            setError('Selected employee not found');
+          }
+        }
       } catch (error) {
         console.error('Error fetching employees:', error);
       } finally {
@@ -92,7 +110,7 @@ export default function AddEmploymentPage() {
     };
 
     fetchEmployees();
-  }, []);
+  }, [setValue]);
 
   const onSubmit = async (data: EmploymentFormData) => {
     try {
@@ -118,11 +136,19 @@ export default function AddEmploymentPage() {
         payableDays: Number(data.payableDays),
         additionalAllowance: Number(data.additionalAllowance),
         specialAllowance: Number(data.specialAllowance),
+        isPF: data.isPF,
+        designation: data.designation,
       };
       
       await addEmployment(formattedData);
       toast.success('Employment record created successfully!', { id: 'add-employment' });
-      router.push('/employments');
+      
+      // Navigate back to the employee details page or employees list
+      if (selectedEmployee) {
+        router.push(`/employees/${selectedEmployee.id}`);
+      } else {
+        router.push('/employees');
+      }
     } catch (error: any) {
       setError(error.message || 'Failed to add employment');
       toast.error(error.message || 'Failed to add employment', { id: 'add-employment' });
@@ -133,25 +159,26 @@ export default function AddEmploymentPage() {
   if (loading) {
     return (
       <DashboardLayout>
-        <Toaster position="top-center" />
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Add New Employment</h1>
-          <div className="bg-gray-200 h-10 w-10 rounded animate-pulse"></div>
-        </div>
+        <SkeletonBreadcrumb levels={3} />
+        <SkeletonHeader />
+        
+        {/* Form skeleton */}
         <div className="bg-white rounded-lg shadow-sm p-6">
-          <div className="animate-pulse space-y-4">
-            <div className="h-10 bg-gray-200 rounded w-1/2"></div>
-            <div className="space-y-2">
-              <div className="h-4 bg-gray-200 rounded"></div>
-              <div className="h-10 bg-gray-200 rounded"></div>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, index) => (
+          <div className="space-y-6 animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(12)].map((_, index) => (
                 <div key={index} className="space-y-2">
                   <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  <div className="h-10 bg-gray-200 rounded"></div>
+                  <div className="h-10 bg-gray-200 rounded w-full"></div>
                 </div>
               ))}
+            </div>
+            
+            <div className="flex justify-end space-x-4 pt-4">
+              <div className="h-10 bg-gray-200 rounded w-24"></div>
+              <div className="h-10 bg-gray-200 rounded w-32"></div>
             </div>
           </div>
         </div>
@@ -167,21 +194,27 @@ export default function AddEmploymentPage() {
       <div className="flex items-center text-sm text-gray-600 mb-4">
         <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
         <span className="mx-2">/</span>
-        <Link href="/employments" className="hover:text-blue-600">Employments</Link>
+        <Link href="/employees" className="hover:text-blue-600">Employees</Link>
+        {selectedEmployee && (
+          <>
+            <span className="mx-2">/</span>
+            <Link href={`/employees/${selectedEmployee.id}`} className="hover:text-blue-600">{selectedEmployee.name}</Link>
+          </>
+        )}
         <span className="mx-2">/</span>
-        <span className="text-gray-800 font-medium">Add New Employment</span>
+        <span className="text-gray-800 font-medium">Add Employment</span>
       </div>
       
       <div className="flex justify-between items-center mb-6">
         <Link
-          href="/employments"
+          href={selectedEmployee ? `/employees/${selectedEmployee.id}` : '/employees'}
           className="px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-1"
         >
           <FiArrowLeft size={14} /> Back
         </Link>
         
         <h1 className="text-xl font-bold text-gray-800 text-center flex-1">
-          Add New Employment
+          {selectedEmployee ? `Add Employment for ${selectedEmployee.name}` : 'Add New Employment'}
         </h1>
         
         <div className="px-3 py-1 opacity-0">
@@ -200,57 +233,22 @@ export default function AddEmploymentPage() {
         <div className="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
           <p>No employees found. Please add employees first.</p>
         </div>
+      ) : !selectedEmployee ? (
+        <div className="bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4">
+          <p>No employee selected. Please go back to the employees list and select an employee.</p>
+        </div>
       ) : (
         <div className="bg-white rounded-lg shadow-sm p-6">
           <form onSubmit={handleSubmit(onSubmit)}>
-            {/* Employee Selection */}
-            <div className="mb-6">
-              <div className="w-full md:w-1/2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Employee*
-                </label>
-                <select
-                  {...register('employeeId', { required: 'Employee is required' })}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                >
-                  <option value="">Select Employee</option>
-                  {employees.map((employee) => (
-                    <option key={employee.id} value={employee.id}>
-                      {employee.name} {employee.employeeId ? `- ${employee.employeeId}` : ''}
-                    </option>
-                  ))}
-                </select>
-                {errors.employeeId && (
-                  <p className="mt-1 text-sm text-red-600">{errors.employeeId.message}</p>
-                )}
-              </div>
-            </div>
+            {/* Hidden input for employeeId */}
+            <input type="hidden" {...register('employeeId')} />
 
             {/* Employment Information Section */}
             <div className="bg-gray-50 p-4 rounded-lg mb-6">
               <h2 className="text-lg font-medium text-gray-800 mb-4 border-l-4 border-blue-500 pl-2">Employment Information</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Employment ID*
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. EMP-001"
-                    {...register('employmentId', { 
-                      required: 'Employment ID is required',
-                      pattern: { 
-                        value: /^[A-Z0-9-]{3,10}$/i, 
-                        message: 'Please enter a valid ID format' 
-                      }
-                    })}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  />
-                  {errors.employmentId && (
-                    <p className="mt-1 text-sm text-red-600">{errors.employmentId.message}</p>
-                  )}
-                </div>
+                
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -329,10 +327,10 @@ export default function AddEmploymentPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    IT
+                    PF
                   </label>
                   <select
-                    {...register('isIT')}
+                    {...register('isPF')}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   >
                     <option value="true">Yes</option>
@@ -342,14 +340,27 @@ export default function AddEmploymentPage() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Resignation
+                    Designation
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Employee designation"
+                    {...register('designation')}
+                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Job Mode
                   </label>
                   <select
-                    {...register('isResignation')}
+                    {...register('jobMode')}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   >
-                    <option value="false">No</option>
-                    <option value="true">Yes</option>
+                    <option value="onsite">Onsite</option>
+                    <option value="remote">Remote</option>
+                    <option value="hybrid">Hybrid</option>
                   </select>
                 </div>
               </div>
@@ -360,63 +371,7 @@ export default function AddEmploymentPage() {
               <h2 className="text-lg font-medium text-gray-800 mb-4 border-l-4 border-green-500 pl-2">Salary Information</h2>
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Salary ID*
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. SAL-001"
-                    {...register('salaryId', { 
-                      required: 'Salary ID is required',
-                      pattern: { 
-                        value: /^[A-Z0-9-]{3,10}$/i, 
-                        message: 'Please enter a valid ID format' 
-                      }
-                    })}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  />
-                  {errors.salaryId && (
-                    <p className="mt-1 text-sm text-red-600">{errors.salaryId.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Salary per annum (₹)*
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="Annual salary amount"
-                    {...register('salary', { 
-                      required: 'Salary is required',
-                      min: { value: 0, message: 'Salary must be positive' },
-                      valueAsNumber: true
-                    })}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  />
-                  {errors.salary && (
-                    <p className="mt-1 text-sm text-red-600">{errors.salary.message}</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Salary per month (₹)*
-                  </label>
-                  <input
-                    type="number"
-                    placeholder="Monthly salary amount"
-                    {...register('salaryPerMonth', { 
-                      required: 'Monthly salary is required',
-                      min: { value: 0, message: 'Amount must be positive' }
-                    })}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  />
-                  {errors.salaryPerMonth && (
-                    <p className="mt-1 text-sm text-red-600">{errors.salaryPerMonth.message}</p>
-                  )}
-                </div>
+              
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -569,6 +524,24 @@ export default function AddEmploymentPage() {
                 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Salary Credited Amount (₹)*
+                  </label>
+                  <input
+                    type="number"
+                    placeholder="Salary Credited Amount"
+                    {...register('salaryCreditedAmount', { 
+                      required: 'Salary credited amount is required',
+                      min: { value: 0, message: 'Amount must be positive' }
+                    })}
+                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                  />
+                  {errors.salaryCreditedAmount && (
+                    <p className="mt-1 text-sm text-red-600">{errors.salaryCreditedAmount.message}</p>
+                  )}
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Payable Days
                   </label>
                   <input
@@ -625,7 +598,7 @@ export default function AddEmploymentPage() {
 
             <div className="flex justify-between gap-4 mt-6">
               <Link
-                href="/employments"
+                href={selectedEmployee ? `/employees/${selectedEmployee.id}` : '/employees'}
                 className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center gap-1"
               >
                 Cancel

@@ -7,6 +7,7 @@ import { FiArrowLeft, FiEdit, FiTrash2, FiBriefcase, FiUser, FiPhone, FiMail, Fi
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { getEmployee, deleteEmployee, getEmploymentsByEmployee } from '@/utils/firebaseUtils';
 import { Employee, Employment } from '@/types';
+import { SkeletonBreadcrumb, SkeletonHeader, SkeletonCard } from '@/components/ui/SkeletonLoader';
 
 // Function to calculate duration between two dates
 const calculateDuration = (startDate: string, endDate: string): string => {
@@ -84,18 +85,23 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-pulse flex space-x-4">
-            <div className="rounded-full bg-gray-200 h-12 w-12"></div>
-            <div className="flex-1 space-y-4 py-1">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded"></div>
-                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SkeletonBreadcrumb levels={3} />
+        <SkeletonHeader />
+        
+        {/* Personal Details Section */}
+        <SkeletonCard rows={2} columns={4} />
+        
+        {/* Address Information */}
+        <SkeletonCard rows={1} columns={2} />
+        
+        {/* Identification Documents */}
+        <SkeletonCard rows={1} columns={4} />
+        
+        {/* Bank Details */}
+        <SkeletonCard rows={1} columns={4} />
+        
+        {/* Educational Details */}
+        <SkeletonCard rows={1} columns={4} />
       </DashboardLayout>
     );
   }
@@ -187,28 +193,7 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
           </div>
         </div>
         
-        <div className="flex justify-between items-start">
-          <div>
-            <h2 className="text-lg font-bold text-gray-800">{employee.name}</h2>
-            <div className="flex items-center text-gray-600 mt-1">
-              <span className="inline-flex items-center mr-3">
-                <FiUser className="mr-1" size={14} />
-                {employee.employeeId || 'No ID'}
-              </span>
-              {employee.position && (
-                <span className="inline-flex items-center mr-3">
-                  <FiBriefcase className="mr-1" size={14} />
-                  {employee.position}
-                </span>
-              )}
-              {employee.department && (
-                <span className="inline-flex items-center">
-                  {employee.department}
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
+       
       </div>
 
       {/* Personal Details Section */}
@@ -224,10 +209,7 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
               <p className="text-sm text-gray-500">Full Name</p>
             </div>
             
-            <div>
-              <p className="text-lg font-medium text-gray-900">{employee.employeeId || '-'}</p>
-              <p className="text-sm text-gray-500">Employee ID</p>
-            </div>
+         
             
             <div>
               <p className="text-lg font-medium text-gray-900">
@@ -370,6 +352,12 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
         {employee.graduation ? (
           <div className="bg-white rounded-lg shadow p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+
+            <div>
+                <p className="text-lg font-medium text-gray-900">{employee.graduation.collegeName || '-'}</p>
+                <p className="text-sm text-gray-500">College Name</p>
+              </div>
+              
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.graduation.degree || '-'}</p>
                 <p className="text-sm text-gray-500">Degree</p>
@@ -388,10 +376,7 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
                 <p className="text-sm text-gray-500">Passout Year</p>
               </div>
               
-              <div>
-                <p className="text-lg font-medium text-gray-900">{employee.graduation.collegeName || '-'}</p>
-                <p className="text-sm text-gray-500">College Name</p>
-              </div>
+             
               
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.graduation.universityName || '-'}</p>
@@ -417,7 +402,7 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.twelthStandard.school || '-'}</p>
-                <p className="text-sm text-gray-500">School</p>
+                <p className="text-sm text-gray-500">School Name</p>
               </div>
               
               <div>
@@ -446,15 +431,17 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
         )}
         
         {/* Other Education */}
-        <h3 className="text-md font-medium text-gray-700 mt-6 mb-4">Other Education</h3>
+        <h3 className="text-md font-medium text-gray-700 mt-6 mb-4">Diploma</h3>
         {employee.otherEducation ? (
           <div className="bg-white rounded-lg shadow p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
-                <p className="text-lg font-medium text-gray-900">{employee.otherEducation.diploma || '-'}</p>
-                <p className="text-sm text-gray-500">Diploma</p>
+             
+            <div>
+                <p className="text-lg font-medium text-gray-900">{employee.otherEducation.collegeName || '-'}</p>
+                <p className="text-sm text-gray-500">College Name</p>
               </div>
-              
+
+
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.otherEducation.branch || '-'}</p>
                 <p className="text-sm text-gray-500">Branch</p>
@@ -468,10 +455,7 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
                 <p className="text-sm text-gray-500">Passout Year</p>
               </div>
               
-              <div>
-                <p className="text-lg font-medium text-gray-900">{employee.otherEducation.collegeName || '-'}</p>
-                <p className="text-sm text-gray-500">College Name</p>
-              </div>
+             
               
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.otherEducation.marks || '-'}</p>
@@ -517,124 +501,7 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
       </div>
 
       {/* Employment History */}
-      <div id="employments" className="bg-white rounded-lg shadow-sm p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold flex items-center text-gray-900">
-            <FiCalendar className="mr-2" /> Employment
-          </h2>
-          <Link
-            href={`/employments/add?employeeId=${id}`}
-            className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-gren-700 flex items-center gap-2"
-          >
-            <FiBriefcase size={16} /> Add Employment
-          </Link>
-        </div>
-        
-        {employments.length === 0 ? (
-          <div className="p-8 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-            <FiBriefcase className="w-12 h-12 mx-auto text-gray-400 mb-3" />
-            <p>No employment records found for this employee.</p>
-            <p className="text-sm mt-2">Click "Add Employment" to create a new employment record.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Contract Type
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Duration
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Salary
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Salaries Credited
-                  </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {employments.map((employment) => (
-                  <tr key={employment.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <span className="text-xs leading-5 font-semibold text-black">
-                        {employment.contractType}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-gray-900">
-                        {new Date(employment.startDate).toLocaleDateString('en-GB', {
-                          day: '2-digit',
-                          month: 'short',
-                          year: 'numeric'
-                        })}
-                        {employment.endDate && (
-                          <> - {new Date(employment.endDate).toLocaleDateString('en-GB', {
-                            day: '2-digit',
-                            month: 'short',
-                            year: 'numeric'
-                          })}</>
-                        )}
-                        {employment.endDate && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            ({calculateDuration(employment.startDate, employment.endDate)})
-                          </div>
-                        )}
-                        {!employment.endDate && (
-                          <div className="text-xs text-gray-500 mt-1">
-                            ({calculateDuration(employment.startDate, new Date().toISOString())})
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-gray-900 font-medium">
-                        {new Intl.NumberFormat('en-IN', {
-                          style: 'currency',
-                          currency: 'INR',
-                          maximumFractionDigits: 0
-                        }).format(employment.salary).replace('₹', '').trim()}
-                        /{employment.paymentFrequency === 'monthly' ? 'mo' : 
-                          employment.paymentFrequency === 'weekly' ? 'wk' : 
-                          employment.paymentFrequency === 'bi-weekly' ? 'bw' : 
-                          employment.paymentFrequency}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-gray-900">
-                        12 {/* Placeholder count */}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="flex items-center justify-center space-x-3">
-                        <Link
-                          href={`/employments/${employment.id}`}
-                          className="border border-blue-500 text-blue-600 hover:bg-blue-50 p-2 rounded text-xs flex items-center justify-center"
-                          title="View Employment Details"
-                        >
-                          <FiEye className="w-4 h-4" />
-                        </Link>
-                        <Link
-                          href={`/employments/${employment.id}/edit`}
-                          className="border border-amber-500 text-amber-600 hover:bg-amber-50 p-2 rounded text-xs flex items-center"
-                          title="Edit Employment"
-                        >
-                          <FiEdit className="w-4 h-4" />
-                        </Link>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+    
     </DashboardLayout>
   );
 } 

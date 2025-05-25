@@ -246,4 +246,30 @@ export const getEmploymentsByEmployee = async (employeeId: string) => {
 // Add function to clear cache when needed (e.g., on logout)
 export const clearFirestoreCache = () => {
   cache.clearCache();
+};
+
+// Salary History CRUD operations
+export const addSalaryHistory = async (salaryData: Omit<any, 'id'>) => {
+  try {
+    const docRef = await addDoc(collection(db, 'salaryHistory'), salaryData);
+    return { id: docRef.id, ...salaryData };
+  } catch (error) {
+    console.error('Error adding salary history:', error);
+    throw error;
+  }
+};
+
+export const getSalaryHistoryByEmployment = async (employmentId: string) => {
+  try {
+    const q = query(collection(db, 'salaryHistory'), where('employmentId', '==', employmentId));
+    const querySnapshot = await getDocs(q);
+    const salaryHistory: any[] = [];
+    querySnapshot.forEach((doc) => {
+      salaryHistory.push({ id: doc.id, ...doc.data() });
+    });
+    return salaryHistory;
+  } catch (error) {
+    console.error('Error getting salary history:', error);
+    throw error;
+  }
 }; 

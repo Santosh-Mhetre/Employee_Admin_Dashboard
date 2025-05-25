@@ -2,17 +2,29 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FiEdit, FiTrash2, FiPlus, FiSearch, FiEye, FiBriefcase } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiSearch, FiEye, FiBriefcase, FiArrowLeft } from 'react-icons/fi';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { getEmployees, deleteEmployee } from '@/utils/firebaseUtils';
-import { Employee } from '@/types';
+import { getEmployees, deleteEmployee, getEmploymentsByEmployee, getSalaryHistoryByEmployment } from '@/utils/firebaseUtils';
+import { Employee, Employment } from '@/types';
 import toast, { Toaster } from 'react-hot-toast';
+import { useRouter } from 'next/navigation';
+import { SkeletonBreadcrumb, SkeletonHeader, SkeletonTable } from '@/components/ui/SkeletonLoader';
+
+interface EmployeeWithEmploymentDetails extends Employee {
+  employmentDetails?: {
+    joiningDate: string | null;
+    currentPackage: number | null;
+    totalSalaries: number;
+  };
+}
 
 export default function EmployeesPage() {
-  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [employees, setEmployees] = useState<EmployeeWithEmploymentDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [loadingEmployment, setLoadingEmployment] = useState<string | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     fetchEmployees();
@@ -22,7 +34,52 @@ export default function EmployeesPage() {
     try {
       setLoading(true);
       const data = await getEmployees();
-      setEmployees(data);
+      
+      // Fetch employment details for each employee
+      const employeesWithDetails = await Promise.all(
+        data.map(async (employee) => {
+          try {
+            // Get all employments for this employee
+            const employments = await getEmploymentsByEmployee(employee.id);
+            
+            if (employments && employments.length > 0) {
+              // Sort employments by joining date (most recent first)
+              employments.sort((a, b) => {
+                const dateA = a.joiningDate || a.startDate;
+                const dateB = b.joiningDate || b.startDate;
+                return new Date(dateB).getTime() - new Date(dateA).getTime();
+              });
+              
+              // Get the most recent employment
+              const latestEmployment = employments[0];
+              
+              // Get salary history for the most recent employment
+              const salaryHistory = await getSalaryHistoryByEmployment(latestEmployment.id);
+              
+              // Count total salary records (including the current employment record)
+              const totalSalaries = salaryHistory ? salaryHistory.length + 1 : 1;
+              
+              console.log(`Employee ${employee.name} (${employee.id}): Found ${salaryHistory?.length || 0} salary history records + 1 current record`);
+              
+              return {
+                ...employee,
+                employmentDetails: {
+                  joiningDate: latestEmployment.joiningDate || latestEmployment.startDate,
+                  currentPackage: latestEmployment.ctc || latestEmployment.salary || 0,
+                  totalSalaries: totalSalaries,
+                }
+              };
+            }
+            
+            return employee;
+          } catch (error) {
+            console.error(`Error fetching employments for employee ${employee.id}:`, error);
+            return employee;
+          }
+        })
+      );
+      
+      setEmployees(employeesWithDetails);
     } catch (error) {
       console.error('Error fetching employees:', error);
     } finally {
@@ -51,6 +108,42 @@ export default function EmployeesPage() {
     setDeleteConfirm(null);
   };
 
+  const handleEmploymentClick = async (employeeId: string) => {
+    try {
+      setLoadingEmployment(employeeId);
+      const employments = await getEmploymentsByEmployee(employeeId);
+      
+      if (employments && employments.length > 0) {
+        // Navigate to the first (most recent) employment
+        router.push(`/employments/${employments[0].id}`);
+      } else {
+        // Navigate to add employment page with the employee ID
+        toast.success('No employment records found. Redirecting to add employment page.');
+        router.push(`/employments/add?employeeId=${employeeId}`);
+      }
+    } catch (error) {
+      console.error('Error fetching employee employments:', error);
+      toast.error('Failed to fetch employment details');
+      setLoadingEmployment(null);
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    if (!amount) return '-';
+    
+    // Convert to lakhs (divide by 100,000)
+    const inLakhs = amount / 100000;
+    
+    if (inLakhs >= 1) {
+      // For amounts >= 1 lakh, show in lakhs with 1 decimal place
+      return `${inLakhs.toFixed(1)} LPA`;
+    } else {
+      // For amounts < 1 lakh, show in thousands
+      const inThousands = amount / 1000;
+      return `${inThousands.toFixed(0)}K PA`;
+    }
+  };
+
   const filteredEmployees = employees.filter(employee => 
     employee.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     employee.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -60,28 +153,24 @@ export default function EmployeesPage() {
   if (loading) {
     return (
       <DashboardLayout>
+        <SkeletonBreadcrumb levels={2} />
+        
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800">Employees</h1>
-          <div className="bg-gray-200 h-10 w-32 rounded animate-pulse"></div>
+          <div className="h-8 w-24 bg-gray-200 rounded"></div>
+          <h1 className="text-2xl font-bold text-gray-800 mx-auto">Employees</h1>
+          <div className="w-20"></div>
         </div>
+        
         <div className="bg-white rounded-lg shadow-sm overflow-hidden">
           <div className="p-4 border-b flex justify-between items-center">
-            <div className="bg-gray-200 h-6 w-32 rounded animate-pulse"></div>
-            <div className="bg-gray-200 h-10 w-64 rounded animate-pulse"></div>
-          </div>
-          <div className="p-8">
-            <div className="animate-pulse space-y-4">
-              {[...Array(5)].map((_, index) => (
-                <div key={index} className="flex items-center space-x-4">
-                  <div className="rounded-full bg-gray-200 h-12 w-12"></div>
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  </div>
-                </div>
-              ))}
+            <div className="h-5 bg-gray-200 rounded w-32"></div>
+            <div className="flex items-center gap-4">
+              <div className="h-10 bg-gray-200 rounded w-64"></div>
+              <div className="h-10 bg-gray-200 rounded w-36"></div>
             </div>
           </div>
+          
+          <SkeletonTable rows={5} columns={7} />
         </div>
       </DashboardLayout>
     );
@@ -95,14 +184,16 @@ export default function EmployeesPage() {
         <span className="mx-2">/</span>
         <span className="text-gray-800 font-medium">Employees</span>
       </div>
+      
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-gray-800">Employees</h1>
         <Link
-          href="/employees/add"
-          className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-700"
+          href="/dashboard"
+          className="flex items-center gap-1 text-gray-600 hover:text-blue-600 border border-gray-300 px-3 py-1 rounded-md"
         >
-          <FiPlus /> Add Employee
+          <FiArrowLeft /> Back
         </Link>
+        <h1 className="text-2xl font-bold text-gray-800 mx-auto">Employees</h1>
+        <div className="w-20"></div> {/* This creates balance in the flex layout */}
       </div>
 
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -110,18 +201,26 @@ export default function EmployeesPage() {
           <div className="text-sm text-gray-600">
             Total: <span className="font-medium">{filteredEmployees.length}</span> employees
           </div>
-          <div className="relative w-64">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <FiSearch className="text-gray-400" />
+          <div className="flex items-center gap-4">
+            <div className="relative w-64">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <FiSearch className="text-gray-400" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search employees..."
+                className="pl-10 pr-4 py-2 border rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                aria-label="Search employees"
+              />
             </div>
-            <input
-              type="text"
-              placeholder="Search employees..."
-              className="pl-10 pr-4 py-2 border rounded-md w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              aria-label="Search employees"
-            />
+            <Link
+              href="/employees/add"
+              className="bg-green-600 text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-green-700"
+            >
+              <FiPlus /> Add Employee
+            </Link>
           </div>
         </div>
 
@@ -154,9 +253,7 @@ export default function EmployeesPage() {
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
-                    Employee ID
-                  </th>
+                 
                   <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                     Status
                   </th>
@@ -183,9 +280,7 @@ export default function EmployeesPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm font-medium text-gray-900">{employee.name}</div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-center">
-                      <div className="text-sm text-gray-500">{employee.employeeId || '-'}</div>
-                    </td>
+                  
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       {employee.status && (
                         <span
@@ -204,22 +299,41 @@ export default function EmployeesPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">
-                        {employee.joinDate ? new Date(employee.joinDate).toLocaleDateString('en-GB', {
-                          day: '2-digit',
-                          month: 'short',
-                          year: 'numeric'
-                        }) : '-'}
+                        {employee.employmentDetails?.joiningDate ? 
+                          (() => {
+                            try {
+                              return new Date(employee.employmentDetails.joiningDate).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                              });
+                            } catch (e) {
+                              return '-';
+                            }
+                          })() : 
+                          employee.joinDate ? 
+                          (() => {
+                            try {
+                              return new Date(employee.joinDate).toLocaleDateString('en-GB', {
+                                day: '2-digit',
+                                month: 'short',
+                                year: 'numeric'
+                              });
+                            } catch (e) {
+                              return '-';
+                            }
+                          })() : '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">
-                        {/* This would come from employment data in a real app */}
-                        {((50000 * 12) / 100000).toFixed(1)} LPA
+                        {employee.employmentDetails?.currentPackage ? 
+                          formatCurrency(employee.employmentDetails.currentPackage) : '-'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-center">
                       <div className="text-sm text-gray-900">
-                        12
+                        {employee.employmentDetails?.totalSalaries || 0}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
@@ -247,13 +361,18 @@ export default function EmployeesPage() {
                           >
                             <FiEye className="w-4 h-4" />
                           </Link>
-                          <Link
-                            href={`/employments?employeeId=${employee.id}`}
+                          <button
+                            onClick={() => handleEmploymentClick(employee.id)}
                             className="border border-green-500 text-green-600 hover:bg-green-50 p-2 rounded text-xs flex items-center"
-                            title="View Employee Employments"
+                            title="View Employee Employment Details"
+                            disabled={loadingEmployment === employee.id}
                           >
-                            <FiBriefcase className="w-4 h-4" />
-                          </Link>
+                            {loadingEmployment === employee.id ? (
+                              <span className="w-4 h-4 border-2 border-t-transparent border-green-600 rounded-full animate-spin"></span>
+                            ) : (
+                              <FiBriefcase className="w-4 h-4" />
+                            )}
+                          </button>
                           <Link
                             href={`/employees/${employee.id}/edit`}
                             className="border border-amber-500 text-amber-600 hover:bg-amber-50 p-2 rounded text-xs flex items-center"

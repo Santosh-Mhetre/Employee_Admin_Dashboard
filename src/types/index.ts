@@ -95,13 +95,13 @@ export interface Employment {
   ctc?: number;
   inHandCtc?: number;
   relievingCtc?: number;
-  isIT?: boolean;
+  isPF?: boolean;
   isResignation?: boolean;
   
   // Salary Information
   salary: number;
   salaryId?: string;
-  salaryPerMonth?: number;
+  salaryCreditedAmount?: number;
   basic?: number;
   da?: number;
   hra?: number;
@@ -128,6 +128,7 @@ export interface Employment {
   designation?: string;
   department?: string;
   location?: string;
+  jobMode?: 'remote' | 'onsite' | 'hybrid';
   reportingManager?: string;
   reportingAuthority?: string;
   employmentType?: string;

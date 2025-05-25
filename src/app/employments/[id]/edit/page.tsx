@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { FiArrowLeft, FiSave } from 'react-icons/fi';
@@ -9,6 +9,7 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import { getEmployment, updateEmployment, getEmployees } from '@/utils/firebaseUtils';
 import { Employment, Employee } from '@/types';
 import toast, { Toaster } from 'react-hot-toast';
+import { SkeletonBreadcrumb, SkeletonHeader, SkeletonCard } from '@/components/ui/SkeletonLoader';
 
 interface EmploymentFormData extends Omit<Employment, 'id' | 'benefits'> {
   benefits: string | string[];
@@ -19,13 +20,24 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const [employment, setEmployment] = useState<Employment | null>(null);
   
   const router = useRouter();
-  const id = params.id;
+  const [id, setId] = useState<string>('');
+  
+  useEffect(() => {
+    // Set the ID from params once on component mount
+    if (params && params.id) {
+      setId(params.id);
+    }
+  }, [params]);
   
   const { register, handleSubmit, formState: { errors }, reset } = useForm<EmploymentFormData>();
 
   useEffect(() => {
+    if (!id) return;
+    
     const fetchData = async () => {
       try {
         setLoading(true);
@@ -36,6 +48,13 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
         
         // Fetch employment data
         const employmentData = await getEmployment(id);
+        setEmployment(employmentData);
+        
+        // Find the associated employee
+        const employee = employeesData.find(emp => emp.id === employmentData.employeeId);
+        if (employee) {
+          setSelectedEmployee(employee);
+        }
         
         // Reset form with employment data
         reset({
@@ -54,12 +73,12 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
           ctc: employmentData.ctc || employmentData.salary || 0,
           inHandCtc: employmentData.inHandCtc || 0,
           relievingCtc: employmentData.relievingCtc || 0,
-          isIT: employmentData.isIT || false,
-          isResignation: employmentData.isResignation || false,
+          isPF: employmentData.isPF || false,
+          designation: employmentData.designation || '',
           
           // Salary Information
           salaryId: employmentData.salaryId || '',
-          salaryPerMonth: employmentData.salaryPerMonth || employmentData.salary / 12 || 0,
+          salaryCreditedAmount: employmentData.salaryCreditedAmount || 0,
           basic: employmentData.basic || 0,
           da: employmentData.da || 0,
           hra: employmentData.hra || 0,
@@ -78,6 +97,7 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
           jobTitle: employmentData.jobTitle || '',
           department: employmentData.department || '',
           location: employmentData.location || '',
+          jobMode: employmentData.jobMode || 'onsite',
           reportingManager: employmentData.reportingManager || '',
           employmentType: employmentData.employmentType || employmentData.contractType || '',
           workSchedule: employmentData.workSchedule || '',
@@ -104,48 +124,83 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
         ? data.benefits.split(',').map(b => b.trim()).filter(b => b !== '')
         : data.benefits;
       
-      // Convert string numbers to actual numbers
+      // First, create a clean object with all fields converted to appropriate types
       const formattedData = {
-        ...data,
+        employeeId: data.employeeId,
+        contractType: data.contractType,
+        startDate: data.startDate,
+        endDate: data.endDate || null,
         salary: Number(data.salary),
-        ctc: Number(data.ctc),
-        inHandCtc: Number(data.inHandCtc),
-        relievingCtc: Number(data.relievingCtc),
-        salaryPerMonth: Number(data.salaryPerMonth),
-        basic: Number(data.basic),
-        da: Number(data.da),
-        hra: Number(data.hra),
-        pf: Number(data.pf),
-        medicalAllowance: Number(data.medicalAllowance),
-        transport: Number(data.transport),
-        gratuity: Number(data.gratuity),
-        totalLeaves: Number(data.totalLeaves),
-        payableDays: Number(data.payableDays),
-        additionalAllowance: Number(data.additionalAllowance),
-        specialAllowance: Number(data.specialAllowance),
+        paymentFrequency: data.paymentFrequency,
         benefits: benefitsArray,
-        // Handle empty string fields
-        endDate: data.endDate || undefined,
-        employmentId: data.employmentId || undefined,
-        joiningDate: data.joiningDate || undefined,
-        incrementDate: data.incrementDate || undefined,
-        salaryId: data.salaryId || undefined,
-        salaryCreditDate: data.salaryCreditDate || undefined,
-        paymentMode: data.paymentMode || undefined,
-        jobTitle: data.jobTitle || undefined,
-        department: data.department || undefined,
-        location: data.location || undefined,
-        reportingManager: data.reportingManager || undefined,
-        employmentType: data.employmentType || undefined,
-        workSchedule: data.workSchedule || undefined
+        
+        // Employment Information
+        employmentId: data.employmentId || null,
+        joiningDate: data.joiningDate || null,
+        incrementDate: data.incrementDate || null,
+        ctc: Number(data.ctc) || null,
+        inHandCtc: Number(data.inHandCtc) || null,
+        relievingCtc: Number(data.relievingCtc) || null,
+        isPF: typeof data.isPF === 'boolean' ? data.isPF : data.isPF === 'true' ? true : data.isPF === 'false' ? false : null,
+        designation: data.designation || null,
+        
+        // Salary Information
+        salaryId: data.salaryId || null,
+        salaryCreditedAmount: Number(data.salaryCreditedAmount) || null,
+        basic: Number(data.basic) || null,
+        da: Number(data.da) || null,
+        hra: Number(data.hra) || null,
+        pf: Number(data.pf) || null,
+        medicalAllowance: Number(data.medicalAllowance) || null,
+        transport: Number(data.transport) || null,
+        gratuity: Number(data.gratuity) || null,
+        totalLeaves: Number(data.totalLeaves) || null,
+        salaryCreditDate: data.salaryCreditDate || null,
+        payableDays: Number(data.payableDays) || null,
+        paymentMode: data.paymentMode || null,
+        additionalAllowance: Number(data.additionalAllowance) || null,
+        specialAllowance: Number(data.specialAllowance) || null,
+        
+        // Job Details
+        jobTitle: data.jobTitle || null,
+        department: data.department || null,
+        location: data.location || null,
+        jobMode: data.jobMode || null,
+        reportingManager: data.reportingManager || null,
+        employmentType: data.employmentType || null,
+        workSchedule: data.workSchedule || null,
       };
       
-      await updateEmployment(id, formattedData);
+      // Remove any null, undefined, or NaN values to prevent Firestore errors
+      const cleanData: Record<string, any> = {};
+      Object.entries(formattedData).forEach(([key, value]) => {
+        // Skip undefined values
+        if (value === undefined) return;
+        
+        // Skip NaN values
+        if (typeof value === 'number' && isNaN(value)) return;
+        
+        // Include all other values (including null, which Firestore accepts)
+        cleanData[key] = value;
+      });
+      
+      console.log('Clean data prepared for update:', cleanData);
+      
+      // Update employment record
+      await updateEmployment(id, cleanData);
+      
+      // Show success message
       toast.success('Employment updated successfully!', { id: 'updateEmployment' });
-      router.push(`/employments/${id}`);
+      
+      // Navigate to employment details page
+      setTimeout(() => {
+        router.push(`/employments/${id}`);
+      }, 500); // Small delay to ensure toast is visible
     } catch (error: any) {
+      console.error('Update failed:', error);
       setError(error.message || 'Failed to update employment');
       toast.error('Failed to update employment', { id: 'updateEmployment' });
+    } finally {
       setIsSubmitting(false);
     }
   };
@@ -153,15 +208,26 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-pulse flex space-x-4">
-            <div className="rounded-full bg-gray-200 h-12 w-12"></div>
-            <div className="flex-1 space-y-4 py-1">
-              <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-              <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded"></div>
-                <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-              </div>
+        <SkeletonBreadcrumb levels={4} />
+        <SkeletonHeader />
+        
+        {/* Form skeleton */}
+        <div className="bg-white rounded-lg shadow-sm p-6">
+          <div className="space-y-6 animate-pulse">
+            <div className="h-6 bg-gray-200 rounded w-1/4 mb-6"></div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(12)].map((_, index) => (
+                <div key={index} className="space-y-2">
+                  <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+                  <div className="h-10 bg-gray-200 rounded w-full"></div>
+                </div>
+              ))}
+            </div>
+            
+            <div className="flex justify-end space-x-4 pt-4">
+              <div className="h-10 bg-gray-200 rounded w-24"></div>
+              <div className="h-10 bg-gray-200 rounded w-32"></div>
             </div>
           </div>
         </div>
@@ -177,7 +243,13 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
       <div className="flex items-center text-sm text-gray-600 mb-4">
         <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
         <span className="mx-2">/</span>
-        <Link href="/employments" className="hover:text-blue-600">Employments</Link>
+        <Link href="/employees" className="hover:text-blue-600">Employees</Link>
+        {selectedEmployee && (
+          <>
+            <span className="mx-2">/</span>
+            <Link href={`/employees/${selectedEmployee.id}`} className="hover:text-blue-600">{selectedEmployee.name}</Link>
+          </>
+        )}
         <span className="mx-2">/</span>
         <Link href={`/employments/${id}`} className="hover:text-blue-600">Employment Details</Link>
         <span className="mx-2">/</span>
@@ -193,7 +265,7 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
         </Link>
         
         <h1 className="text-xl font-bold text-gray-800 text-center flex-1">
-          Edit Employment
+          {selectedEmployee ? `Edit Employment for ${selectedEmployee.name}` : 'Edit Employment'}
         </h1>
         
         <div className="px-3 py-1 opacity-0">
@@ -209,134 +281,34 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
       )}
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        {/* Basic Information */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 border-l-4 border-blue-500 pl-2">Basic Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Employee
-              </label>
-              <select
-                {...register('employeeId', { required: 'Employee is required' })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="">Select Employee</option>
-                {employees.map((employee) => (
-                  <option key={employee.id} value={employee.id}>
-                    {employee.name} - {employee.position}
-                  </option>
-                ))}
-              </select>
-              {errors.employeeId && (
-                <p className="mt-1 text-sm text-red-600">{errors.employeeId.message}</p>
-              )}
-            </div>
+        {/* Hidden input for employeeId */}
+        <input type="hidden" {...register('employeeId')} />
+        <input type="hidden" {...register('contractType')} />
+        <input type="hidden" {...register('startDate')} />
+        <input type="hidden" {...register('endDate')} />
+        <input type="hidden" {...register('salary')} />
+        <input type="hidden" {...register('paymentFrequency')} />
+        <input type="hidden" {...register('benefits')} />
 
+        {/* Employment Information Section */}
+        <div className="bg-gray-50 p-4 rounded-lg mb-6">
+          <h2 className="text-lg font-medium text-gray-800 mb-4 border-l-4 border-blue-500 pl-2">Employment Information</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Contract Type
-              </label>
-              <select
-                {...register('contractType', { required: 'Contract type is required' })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="full-time">Full Time</option>
-                <option value="part-time">Part Time</option>
-                <option value="contract">Contract</option>
-              </select>
-              {errors.contractType && (
-                <p className="mt-1 text-sm text-red-600">{errors.contractType.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Date
+                Joining Date*
               </label>
               <input
                 type="date"
-                {...register('startDate', { required: 'Start date is required' })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                {...register('joiningDate', { required: 'Joining date is required' })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
-              {errors.startDate && (
-                <p className="mt-1 text-sm text-red-600">{errors.startDate.message}</p>
+              {errors.joiningDate && (
+                <p className="mt-1 text-sm text-red-600">{errors.joiningDate.message}</p>
               )}
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                End Date (Optional)
-              </label>
-              <input
-                type="date"
-                {...register('endDate')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Salary
-              </label>
-              <input
-                type="number"
-                {...register('salary', { 
-                  required: 'Salary is required',
-                  min: { value: 0, message: 'Salary must be positive' },
-                  valueAsNumber: true
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Annual salary"
-              />
-              {errors.salary && (
-                <p className="mt-1 text-sm text-red-600">{errors.salary.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Payment Frequency
-              </label>
-              <select
-                {...register('paymentFrequency')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              >
-                <option value="monthly">Monthly</option>
-                <option value="bi-weekly">Bi-Weekly</option>
-                <option value="weekly">Weekly</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        
-        {/* Employment Information */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 border-l-4 border-blue-500 pl-2">Employment Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Employment ID
-              </label>
-              <input
-                type="text"
-                {...register('employmentId')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="E.g., EMP-001"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Joining Date
-              </label>
-              <input
-                type="date"
-                {...register('joiningDate')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              />
-            </div>
-            
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Increment Date
@@ -344,216 +316,224 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
               <input
                 type="date"
                 {...register('incrementDate')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                CTC
+                CTC (₹)*
               </label>
               <input
                 type="number"
+                placeholder="Annual CTC amount"
                 {...register('ctc', { 
+                  required: 'CTC is required',
                   min: { value: 0, message: 'CTC must be positive' },
                   valueAsNumber: true
                 })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Total Cost to Company"
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.ctc && (
+                <p className="mt-1 text-sm text-red-600">{errors.ctc.message}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                In-hand CTC
+                In-hand CTC (₹)*
               </label>
               <input
                 type="number"
+                placeholder="In-hand CTC amount"
                 {...register('inHandCtc', { 
+                  required: 'In-hand CTC is required',
                   min: { value: 0, message: 'In-hand CTC must be positive' },
                   valueAsNumber: true
                 })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="In-hand CTC"
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.inHandCtc && (
+                <p className="mt-1 text-sm text-red-600">{errors.inHandCtc.message}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Relieving CTC
+                Relieving CTC (₹)
               </label>
               <input
                 type="number"
+                placeholder="Relieving CTC (if applicable)"
                 {...register('relievingCtc')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Relieving CTC"
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                IT
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                PF
               </label>
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    value="true"
-                    {...register('isIT')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className="ml-2">Yes</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    value="false"
-                    {...register('isIT')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className="ml-2">No</span>
-                </label>
-              </div>
+              <select
+                {...register('isPF')}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              >
+                <option value="true">Yes</option>
+                <option value="false">No</option>
+              </select>
             </div>
-            
+
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Resignation
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Designation
               </label>
-              <div className="flex items-center space-x-4">
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    value="true"
-                    {...register('isResignation')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className="ml-2">Yes</span>
-                </label>
-                <label className="inline-flex items-center">
-                  <input
-                    type="radio"
-                    value="false"
-                    {...register('isResignation')}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                  />
-                  <span className="ml-2">No</span>
-                </label>
-              </div>
+              <input
+                type="text"
+                placeholder="Employee designation"
+                {...register('designation')}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Job Mode
+              </label>
+              <select
+                {...register('jobMode')}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              >
+                <option value="onsite">Onsite</option>
+                <option value="remote">Remote</option>
+                <option value="hybrid">Hybrid</option>
+              </select>
             </div>
           </div>
         </div>
 
         {/* Salary Information */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold text-gray-800 mb-4 border-l-4 border-green-500 pl-2">Salary Information</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-gray-50 p-4 rounded-lg mb-6">
+          <h2 className="text-lg font-medium text-gray-800 mb-4 border-l-4 border-green-500 pl-2">Salary Information</h2>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Salary ID
-              </label>
-              <input
-                type="text"
-                {...register('salaryId')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="E.g., SAL-001"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Salary per month
+                Basic (₹)*
               </label>
               <input
                 type="number"
-                {...register('salaryPerMonth')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Monthly salary"
+                placeholder="Basic salary amount"
+                {...register('basic', { 
+                  required: 'Basic salary is required',
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.basic && (
+                <p className="mt-1 text-sm text-red-600">{errors.basic.message}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Basic
+                DA (₹)
               </label>
               <input
                 type="number"
-                {...register('basic')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Basic pay"
+                placeholder="Dearness Allowance"
+                {...register('da', { 
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.da && (
+                <p className="mt-1 text-sm text-red-600">{errors.da.message}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                DA (Dearness Allowance)
+                HRA (₹)
               </label>
               <input
                 type="number"
-                {...register('da')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Dearness allowance"
+                placeholder="House Rent Allowance"
+                {...register('hra', { 
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.hra && (
+                <p className="mt-1 text-sm text-red-600">{errors.hra.message}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                HRA (House Rent Allowance)
+                PF (₹)
               </label>
               <input
                 type="number"
-                {...register('hra')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="House rent allowance"
+                placeholder="Provident Fund"
+                {...register('pf', { 
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.pf && (
+                <p className="mt-1 text-sm text-red-600">{errors.pf.message}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                PF (Provident Fund)
+                Medical Allowance (₹)
               </label>
               <input
                 type="number"
-                {...register('pf')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Provident fund"
+                placeholder="Medical Allowance"
+                {...register('medicalAllowance', { 
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.medicalAllowance && (
+                <p className="mt-1 text-sm text-red-600">{errors.medicalAllowance.message}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Medical Allowance
+                Transport (₹)
               </label>
               <input
                 type="number"
-                {...register('medicalAllowance')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Medical allowance"
+                placeholder="Transport Allowance"
+                {...register('transport', { 
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.transport && (
+                <p className="mt-1 text-sm text-red-600">{errors.transport.message}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Transport
+                Gratuity (₹)
               </label>
               <input
                 type="number"
-                {...register('transport')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Transport allowance"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gratuity
-              </label>
-              <input
-                type="number"
-                {...register('gratuity')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Gratuity"
+                {...register('gratuity', { 
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.gratuity && (
+                <p className="mt-1 text-sm text-red-600">{errors.gratuity.message}</p>
+              )}
             </div>
             
             <div>
@@ -562,22 +542,45 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
               </label>
               <input
                 type="number"
-                {...register('totalLeaves')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Total leaves per year"
+                placeholder="Days per year"
+                {...register('totalLeaves', { 
+                  min: { value: 0, message: 'Value must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+              {errors.totalLeaves && (
+                <p className="mt-1 text-sm text-red-600">{errors.totalLeaves.message}</p>
+              )}
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Salary Credit Date
               </label>
               <input
                 type="text"
+                placeholder="e.g. 1st of every month"
                 {...register('salaryCreditDate')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="E.g., 1st of every month"
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Salary Credited Amount (₹)*
+              </label>
+              <input
+                type="number"
+                placeholder="Salary Credited Amount"
+                {...register('salaryCreditedAmount', { 
+                  required: 'Salary credited amount is required',
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              />
+              {errors.salaryCreditedAmount && (
+                <p className="mt-1 text-sm text-red-600">{errors.salaryCreditedAmount.message}</p>
+              )}
             </div>
             
             <div>
@@ -586,45 +589,51 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
               </label>
               <input
                 type="number"
+                placeholder="Days"
                 {...register('payableDays')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Payable days"
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Payment Mode
               </label>
-              <input
-                type="text"
+              <select
                 {...register('paymentMode')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="E.g., Bank Transfer, Cash"
-              />
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+              >
+                <option value="bank-transfer">Bank Transfer</option>
+                <option value="cheque">Cheque</option>
+                <option value="cash">Cash</option>
+              </select>
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Additional Allowance
+                Additional Allowance (₹)
               </label>
               <input
                 type="number"
-                {...register('additionalAllowance')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Additional allowance"
+                placeholder="Additional Allowance"
+                {...register('additionalAllowance', { 
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
             </div>
-            
+
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Special Allowance
+                Special Allowance (₹)
               </label>
               <input
                 type="number"
-                {...register('specialAllowance')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Special allowance"
+                placeholder="Special Allowance"
+                {...register('specialAllowance', { 
+                  min: { value: 0, message: 'Amount must be positive' }
+                })}
+                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
               />
             </div>
           </div>
@@ -633,7 +642,7 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
         <div className="flex justify-between gap-4 mt-6">
           <Link
             href={`/employments/${id}`}
-            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+            className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 flex items-center gap-1"
           >
             Cancel
           </Link>

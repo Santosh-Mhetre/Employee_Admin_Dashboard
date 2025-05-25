@@ -71,7 +71,12 @@ const Header = () => {
           Admin Dashboard
         </h1>
         
-        <div className="relative ml-auto" ref={dropdownRef}>
+        <div className="relative ml-auto flex items-center" ref={dropdownRef}>
+          {adminName && (
+            <span className="mr-3 font-medium text-gray-900">
+              {adminName}
+            </span>
+          )}
           <div 
             className="flex items-center cursor-pointer p-2 rounded-full "
             onClick={toggleDropdown}
@@ -83,7 +88,7 @@ const Header = () => {
           
           {showDropdown && (
             <div 
-              className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg py-1 z-20"
+              className="absolute right-0 mt-35 w-48 bg-white rounded-md shadow-lg py-1 z-20"
             >
               <Link 
                 href="/profile" 

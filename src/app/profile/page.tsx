@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { FiHome, FiUser, FiChevronRight } from 'react-icons/fi';
+import { SkeletonBreadcrumb, SkeletonCard } from '@/components/ui/SkeletonLoader';
 
 export default function ProfilePage() {
   const [adminData, setAdminData] = useState<{
@@ -49,7 +50,7 @@ export default function ProfilePage() {
           <ol className="inline-flex items-center space-x-1 md:space-x-3">
             <li className="inline-flex items-center">
               <Link href="/dashboard" className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
-                <FiHome className="mr-2" />
+              
                 Dashboard
               </Link>
             </li>
@@ -62,10 +63,7 @@ export default function ProfilePage() {
           </ol>
         </nav>
 
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-800">My Profile</h1>
-          <p className="text-slate-600">View and manage your account information</p>
-        </div>
+      
 
         {adminData ? (
           <div className="bg-white shadow-sm rounded-lg p-6">
@@ -90,9 +88,10 @@ export default function ProfilePage() {
             </div>
           </div>
         ) : (
-          <div className="text-center py-12">
-            <p className="text-gray-500">Loading profile information...</p>
-          </div>
+          <>
+            <SkeletonBreadcrumb levels={2} />
+            <SkeletonCard rows={1} columns={3} />
+          </>
         )}
       </div>
     </DashboardLayout>

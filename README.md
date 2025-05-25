@@ -183,3 +183,35 @@ If the iframe is not loading properly, ensure:
 3. The proxy rewrites are correctly configured in `next.config.js`
 
 For additional help, please refer to the documentation of both applications.
+
+## Skeleton Loading Components
+
+The application includes reusable skeleton loading components to provide a consistent loading experience across all pages. These components are located in `src/components/ui/SkeletonLoader.tsx` and include:
+
+1. **SkeletonBreadcrumb**: Displays a loading state for breadcrumb navigation with customizable number of levels.
+
+2. **SkeletonHeader**: Shows a loading state for page headers with optional action buttons.
+
+3. **SkeletonCard**: Renders a card with customizable rows and columns of skeleton items, useful for detail sections.
+
+4. **SkeletonTable**: Displays a loading state for tables with customizable rows and columns.
+
+These components are used throughout the application to provide visual feedback during data loading, improving the perceived performance and user experience.
+
+## Usage Example
+
+```jsx
+import { SkeletonBreadcrumb, SkeletonHeader, SkeletonCard, SkeletonTable } from '@/components/ui/SkeletonLoader';
+
+// In your component's loading state
+if (loading) {
+  return (
+    <DashboardLayout>
+      <SkeletonBreadcrumb levels={3} />
+      <SkeletonHeader />
+      <SkeletonCard rows={2} columns={4} />
+      <SkeletonTable rows={5} columns={6} />
+    </DashboardLayout>
+  );
+}
+```
