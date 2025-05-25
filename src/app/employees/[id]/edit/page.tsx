@@ -11,7 +11,7 @@ import { Employee } from '@/types';
 import toast, { Toaster } from 'react-hot-toast';
 import { SkeletonBreadcrumb, SkeletonHeader } from '@/components/ui/SkeletonLoader';
 
-export default function EditEmployeePage({ params }: { params: { id: string } }) {
+function EditEmployeePage({ params }: { params: { id: string } }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -446,4 +446,6 @@ export default function EditEmployeePage({ params }: { params: { id: string } })
       </div>
     </DashboardLayout>
   );
-} 
+}
+
+export default EditEmployeePage; 

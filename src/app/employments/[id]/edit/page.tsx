@@ -15,7 +15,7 @@ interface EmploymentFormData extends Omit<Employment, 'id' | 'benefits'> {
   benefits: string | string[];
 }
 
-export default function EditEmploymentPage({ params }: { params: { id: string } }) {
+function EditEmploymentPage({ params }: { params: { id: string } }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -658,4 +658,6 @@ export default function EditEmploymentPage({ params }: { params: { id: string } 
       </form>
     </DashboardLayout>
   );
-} 
+}
+
+export default EditEmploymentPage; 
