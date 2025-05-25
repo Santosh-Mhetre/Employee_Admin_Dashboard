@@ -283,7 +283,15 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
               
               {employee.status && (
                 <div>
-                  <p className="text-lg font-medium text-gray-900">{employee.status}</p>
+                  <div className="mb-1">
+                    <span className={`px-3 py-1 text-sm font-medium rounded-full ${
+                      employee.status.toLowerCase() === 'active' 
+                        ? 'bg-green-100 text-green-800' 
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {employee.status}
+                    </span>
+                  </div>
                   <p className="text-sm text-gray-500">Status</p>
                 </div>
               )}
