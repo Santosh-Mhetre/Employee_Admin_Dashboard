@@ -4,8 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import { FiHome, FiUser, FiChevronRight } from 'react-icons/fi';
-import { SkeletonBreadcrumb, SkeletonCard } from '@/components/ui/SkeletonLoader';
+import { FiHome, FiUser, FiChevronRight, FiArrowLeft } from 'react-icons/fi';
+import { SkeletonBreadcrumb, SkeletonCard, SkeletonHeader } from '@/components/ui/SkeletonLoader';
 
 export default function ProfilePage() {
   const [adminData, setAdminData] = useState<{
@@ -44,56 +44,60 @@ export default function ProfilePage() {
 
   return (
     <DashboardLayout>
-      <div className="p-6">
-        {/* Breadcrumb */}
-        <nav className="flex mb-6" aria-label="Breadcrumb">
-          <ol className="inline-flex items-center space-x-1 md:space-x-3">
-            <li className="inline-flex items-center">
-              <Link href="/dashboard" className="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
-              
-                Dashboard
-              </Link>
-            </li>
-            <li>
-              <div className="flex items-center">
-                <FiChevronRight className="text-gray-400" />
-                <span className="ml-1 text-sm font-medium text-gray-700 md:ml-2">Profile</span>
-              </div>
-            </li>
-          </ol>
-        </nav>
-
+      {/* Breadcrumb Navigation */}
+      <div className="flex items-center text-sm text-gray-600 mb-4">
+        <Link href="/dashboard" className="hover:text-blue-600">Dashboard</Link>
+        <span className="mx-2">/</span>
+        <span className="text-gray-800 font-medium">Profile</span>
+      </div>
       
+      {/* Header with Back Button */}
+      <div className="flex justify-between items-center mb-6">
+        <Link
+          href="/dashboard"
+          className="px-3 py-1 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50 flex items-center gap-1"
+        >
+          <FiArrowLeft size={14} /> Back
+        </Link>
+        
+        <h1 className="text-xl font-bold text-gray-800 flex-1 text-center">
+          Profile Information
+        </h1>
+        
+        <div className="px-3 py-1 opacity-0">
+          {/* Empty div for spacing */}
+          <FiArrowLeft size={14} className="invisible" />
+        </div>
+      </div>
 
-        {adminData ? (
-          <div className="bg-white shadow-sm rounded-lg p-6">
-            <div className="space-y-6">
-              <div>
-                <h2 className="text-lg font-medium text-slate-800 mb-4">Account Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <div>
-                    <p className="text-slate-800 text-lg font-medium">{adminData.name}</p>
-                    <label className="block text-sm text-gray-500 mt-1">Name</label>
-                  </div>
-                  <div>
-                    <p className="text-slate-800 text-lg font-medium">{formatRole(adminData.role)}</p>
-                    <label className="block text-sm text-gray-500 mt-1">Role</label>
-                  </div>
-                  <div>
-                    <p className="text-slate-800 text-lg font-medium">{adminData.mobile}</p>
-                    <label className="block text-sm text-gray-500 mt-1">Mobile Number</label>
-                  </div>
+      {adminData ? (
+        <div className="bg-white shadow-sm rounded-lg p-6">
+          <div className="space-y-6">
+            <div>
+             
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <p className="text-slate-800 text-lg font-medium">{adminData.name}</p>
+                  <label className="block text-sm text-gray-500 mt-1">Name</label>
+                </div>
+                <div>
+                  <p className="text-slate-800 text-lg font-medium">{formatRole(adminData.role)}</p>
+                  <label className="block text-sm text-gray-500 mt-1">Role</label>
+                </div>
+                <div>
+                  <p className="text-slate-800 text-lg font-medium">{adminData.mobile}</p>
+                  <label className="block text-sm text-gray-500 mt-1">Mobile Number</label>
                 </div>
               </div>
             </div>
           </div>
-        ) : (
-          <>
-            <SkeletonBreadcrumb levels={2} />
-            <SkeletonCard rows={1} columns={3} />
-          </>
-        )}
-      </div>
+        </div>
+      ) : (
+        <>
+          <SkeletonHeader />
+          <SkeletonCard rows={1} columns={3} />
+        </>
+      )}
     </DashboardLayout>
   );
 } 

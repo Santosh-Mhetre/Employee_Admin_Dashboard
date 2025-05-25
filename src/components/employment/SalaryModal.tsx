@@ -54,7 +54,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
       transport: currentSalary?.transport || null,
       gratuity: currentSalary?.gratuity || null,
       totalLeaves: currentSalary?.totalLeaves || null,
-      salaryCreditDate: currentSalary?.salaryCreditDate || '1st of every month',
+      salaryCreditDate: currentSalary?.salaryCreditDate || '',
       salaryCreditedAmount: currentSalary?.salaryCreditedAmount || null,
       payableDays: currentSalary?.payableDays || null,
       additionalAllowance: currentSalary?.additionalAllowance || null,
@@ -80,7 +80,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
         transport: null,
         gratuity: null,
         totalLeaves: null,
-        salaryCreditDate: '1st of every month',
+        salaryCreditDate: '',
         salaryCreditedAmount: null,
         payableDays: null,
         additionalAllowance: null,
@@ -182,6 +182,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter basic salary"
                   {...register('basic', { 
                     required: 'Basic salary is required',
                     min: { value: 0, message: 'Amount must be positive' }
@@ -200,6 +201,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter dearness allowance"
                   {...register('da', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -217,6 +219,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter house rent allowance"
                   {...register('hra', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -234,6 +237,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter provident fund amount"
                   {...register('pf', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -251,6 +255,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter medical allowance"
                   {...register('medicalAllowance', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -268,6 +273,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter transport allowance"
                   {...register('transport', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -285,6 +291,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter gratuity amount"
                   {...register('gratuity', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -302,6 +309,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter total leaves"
                   {...register('totalLeaves', { 
                     min: { value: 0, message: 'Value must be positive' }
                   })}
@@ -318,8 +326,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                   Salary Credit Date
                 </label>
                 <input
-                  type="text"
-                  placeholder="e.g. 1st of every month"
+                  type="date"
                   {...register('salaryCreditDate')}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
@@ -335,6 +342,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter credited amount"
                   {...register('salaryCreditedAmount', { 
                     required: 'Credited amount is required',
                     min: { value: 0, message: 'Amount must be positive' }
@@ -353,6 +361,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter payable days"
                   {...register('payableDays', { 
                     min: { value: 0, message: 'Value must be positive' }
                   })}
@@ -370,6 +379,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter additional allowance"
                   {...register('additionalAllowance', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -387,6 +397,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter special allowance"
                   {...register('specialAllowance', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -404,6 +415,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter education allowance"
                   {...register('educationAllowance', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -421,6 +433,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter monthly reimbursement"
                   {...register('monthlyReimbursement', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -438,6 +451,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter leave travel allowance"
                   {...register('lta', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -455,6 +469,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter statutory bonus"
                   {...register('statutoryBonus', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -472,6 +487,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter health insurance amount"
                   {...register('healthInsurance', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
@@ -489,6 +505,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 </label>
                 <input
                   type="number"
+                  placeholder="Enter employer PF contribution"
                   {...register('employerPF', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
