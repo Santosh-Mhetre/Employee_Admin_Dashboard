@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { FiArrowLeft, FiEdit, FiTrash2, FiBriefcase, FiUser, FiPhone, FiMail, FiMapPin, FiCalendar, FiCreditCard, FiBook, FiEye } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit, FiTrash2, FiBriefcase, FiUser, FiPhone, FiMail, FiMapPin, FiCalendar, FiCreditCard, FiBook, FiEye, FiCheck, FiX } from 'react-icons/fi';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { getEmployee, deleteEmployee, getEmploymentsByEmployee } from '@/utils/firebaseUtils';
 import { Employee, Employment } from '@/types';
@@ -162,7 +162,7 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
           <div className="flex items-center gap-2">
             <Link
               href={`/employees/${id}/edit`}
-              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
+              className="border border-amber-500 bg-amber-100 text-amber-600 hover:bg-amber-200 px-3 py-1 rounded-md flex items-center gap-1 text-sm"
             >
               <FiEdit size={14} /> Edit
             </Link>
@@ -170,7 +170,7 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
             {!deleteConfirm ? (
               <button
                 onClick={handleDeleteClick}
-                className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-1"
+                className="border border-red-500 bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded-md flex items-center gap-1 text-sm"
               >
                 <FiTrash2 size={14} /> Delete
               </button>
@@ -178,15 +178,15 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
               <div className="flex items-center gap-2">
                 <button
                   onClick={confirmDelete}
-                  className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  className="border border-red-500 bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded-md text-sm flex items-center gap-1"
                 >
-                  Confirm
+                  <FiCheck size={14} /> Confirm
                 </button>
                 <button
                   onClick={cancelDelete}
-                  className="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                  className="border border-gray-500 bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1 rounded-md text-sm flex items-center gap-1"
                 >
-                  Cancel
+                  <FiX size={14} /> Cancel
                 </button>
               </div>
             )}
@@ -294,23 +294,20 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div>
               <p className="text-lg font-medium text-gray-900">{employee.aadharCard || '-'}</p>
-              <p className="text-sm text-gray-500">Aadhar Card</p>
+              <p className="text-sm text-gray-500">Aadhar Card Number</p>
             </div>
             
             <div>
               <p className="text-lg font-medium text-gray-900">{employee.panCard || '-'}</p>
-              <p className="text-sm text-gray-500">PAN Card</p>
+              <p className="text-sm text-gray-500">PAN Card Number</p>
             </div>
             
             <div>
               <p className="text-lg font-medium text-gray-900">{employee.drivingLicense || '-'}</p>
-              <p className="text-sm text-gray-500">Driving License</p>
+              <p className="text-sm text-gray-500">Driving License Number</p>
             </div>
             
-            <div>
-              <p className="text-lg font-medium text-gray-900">{employee.voterID || '-'}</p>
-              <p className="text-sm text-gray-500">Voter ID</p>
-            </div>
+           
           </div>
         </div>
         

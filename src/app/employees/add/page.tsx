@@ -120,12 +120,12 @@ export default function AddEmployeePage() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* Personal Details Section */}
-        <div className="bg-gray-100 p-4 mb-4 rounded-lg">
+        <div className="bg-white p-4 mb-4 rounded-lg">
           <h2 className="text-lg font-semibold text-gray-800 mb-2 border-l-4 border-blue-500 pl-2">Personal Details</h2>
           
           <div className="bg-white p-4 rounded-lg mb-4">
             <h3 className="text-md font-medium text-gray-700 mb-3 border-l-2 border-green-500 pl-2">Basic Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Name*
@@ -142,6 +142,10 @@ export default function AddEmployeePage() {
                     maxLength: {
                       value: 50,
                       message: 'Name cannot exceed 50 characters'
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z\s]*$/,
+                      message: 'Name can only contain letters and spaces'
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -163,8 +167,14 @@ export default function AddEmployeePage() {
                       if (!value) return 'Date of birth is required';
                       const date = new Date(value);
                       const today = new Date();
-                      const age = today.getFullYear() - date.getFullYear();
-                      return (age >= 18) || 'Employee must be at least 18 years old';
+                      let age = today.getFullYear() - date.getFullYear();
+                      const monthDiff = today.getMonth() - date.getMonth();
+                      if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+                        age--;
+                      }
+                      if (age < 18) return 'Employee must be at least 18 years old';
+                      if (age > 70) return 'Employee age cannot exceed 70 years';
+                      return true;
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -187,23 +197,22 @@ export default function AddEmployeePage() {
                 </select>
               </div>
 
-           
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1" >
-                  Home Town
+                  Home Town*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter home town"
                   {...register('homeTown', {
+                    required: 'Home town is required',
                     maxLength: {
                       value: 50,
                       message: 'Home town cannot exceed 50 characters'
+                    },
+                    pattern: {
+                      value: /^[a-zA-Z\s]*$/,
+                      message: 'Home town can only contain letters and spaces'
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -218,7 +227,7 @@ export default function AddEmployeePage() {
           {/* Contact Information */}
           <div className="bg-white p-4 rounded-lg mb-4">
             <h3 className="text-md font-medium text-gray-700 mb-3 border-l-2 border-green-500 pl-2">Contact Information</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Mobile No.*
@@ -229,8 +238,8 @@ export default function AddEmployeePage() {
                   {...register('phone', { 
                     required: 'Phone number is required',
                     pattern: {
-                      value: /^[0-9]{10}$/,
-                      message: 'Please enter a valid 10-digit phone number'
+                      value: /^[6-9]\d{9}$/,
+                      message: 'Please enter a valid 10-digit Indian mobile number'
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -260,34 +269,56 @@ export default function AddEmployeePage() {
                   <p className="mt-1 text-sm text-red-600">{errors.email.message}</p>
                 )}
               </div>
-            </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Current Address*
                 </label>
                 <textarea
                   placeholder="Enter current address"
-                  {...register('currentAddress', { required: 'Current address is required' })}
-                  rows={3}
+                  {...register('currentAddress', { 
+                    required: 'Current address is required',
+                    minLength: {
+                      value: 10,
+                      message: 'Address must be at least 10 characters long'
+                    },
+                    maxLength: {
+                      value: 200,
+                      message: 'Address cannot exceed 200 characters'
+                    }
+                  })}
+                  rows={1}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 ></textarea>
                 {errors.currentAddress && (
                   <p className="mt-1 text-sm text-red-600">{errors.currentAddress.message}</p>
                 )}
               </div>
+            </div>
 
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Permanent Address
                 </label>
                 <textarea
                   placeholder="Enter permanent address (if different from current)"
-                  {...register('permanentAddress')}
+                  {...register('permanentAddress', {
+                    minLength: {
+                      value: 10,
+                      message: 'Address must be at least 10 characters long'
+                    },
+                    maxLength: {
+                      value: 200,
+                      message: 'Address cannot exceed 200 characters'
+                    }
+                  })}
                   rows={3}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 ></textarea>
+                {errors.permanentAddress && (
+                  <p className="mt-1 text-sm text-red-600">{errors.permanentAddress.message}</p>
+                )}
               </div>
             </div>
           </div>
@@ -295,17 +326,18 @@ export default function AddEmployeePage() {
           {/* Identification Documents */}
           <div className="bg-white p-4 rounded-lg mb-4">
             <h3 className="text-md font-medium text-gray-700 mb-3 border-l-2 border-green-500 pl-2">Identification Documents</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Aadhar Card*
+                  Aadhar Card Number*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter 12-digit Aadhar number"
                   {...register('aadharCard', {
+                    required: 'Aadhar number is required',
                     pattern: {
-                      value: /^\d{12}$/,
+                      value: /^[2-9]{1}[0-9]{11}$/,
                       message: 'Please enter a valid 12-digit Aadhar number'
                     }
                   })}
@@ -318,24 +350,33 @@ export default function AddEmployeePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Driving License
+                  Driving License Number
                 </label>
                 <input
                   type="text"
                   placeholder="Enter driving license number"
-                  {...register('drivingLicense')}
+                  {...register('drivingLicense', {
+                    pattern: {
+                      value: /^(([A-Z]{2}[0-9]{2})( )|([A-Z]{2}-[0-9]{2}))((19|20)[0-9][0-9])[0-9]{7}$/,
+                      message: 'Please enter a valid driving license number'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.drivingLicense && (
+                  <p className="mt-1 text-sm text-red-600">{errors.drivingLicense.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  PAN Card*
+                  PAN Card Number*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter PAN number"
                   {...register('panCard', {
+                    required: 'PAN number is required',
                     pattern: {
                       value: /^[A-Z]{5}[0-9]{4}[A-Z]{1}$/,
                       message: 'Please enter a valid PAN number (e.g., ABCDE1234F)'
@@ -347,33 +388,13 @@ export default function AddEmployeePage() {
                   <p className="mt-1 text-sm text-red-600">{errors.panCard.message}</p>
                 )}
               </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Van No
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter van number"
-                  {...register('vanNo', {
-                    pattern: {
-                      value: /^[A-Z0-9]{2,10}$/i,
-                      message: 'Please enter a valid van number'
-                    }
-                  })}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                />
-                {errors.vanNo && (
-                  <p className="mt-1 text-sm text-red-600">{errors.vanNo.message}</p>
-                )}
-              </div>
             </div>
           </div>
           
           {/* Bank Details */}
           <div className="bg-white p-4 rounded-lg mb-4">
             <h3 className="text-md font-medium text-gray-700 mb-3 border-l-2 border-green-500 pl-2">Bank Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Bank Name*
@@ -382,7 +403,11 @@ export default function AddEmployeePage() {
                   type="text"
                   placeholder="Enter bank name"
                   {...register('bankName', {
-                    required: 'Bank name is required'
+                    required: 'Bank name is required',
+                    pattern: {
+                      value: /^[a-zA-Z\s]*$/,
+                      message: 'Bank name can only contain letters and spaces'
+                    }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
@@ -402,7 +427,7 @@ export default function AddEmployeePage() {
                     required: 'Account number is required',
                     pattern: {
                       value: /^\d{9,18}$/,
-                      message: 'Please enter a valid account number'
+                      message: 'Please enter a valid account number (9-18 digits)'
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -423,7 +448,7 @@ export default function AddEmployeePage() {
                     required: 'IFSC code is required',
                     pattern: {
                       value: /^[A-Z]{4}0[A-Z0-9]{6}$/,
-                      message: 'Please enter a valid IFSC code'
+                      message: 'Please enter a valid IFSC code (e.g., HDFC0123456)'
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -441,7 +466,11 @@ export default function AddEmployeePage() {
                   type="text"
                   placeholder="Enter account holder name"
                   {...register('accountHolderName', {
-                    required: 'Account holder name is required'
+                    required: 'Account holder name is required',
+                    pattern: {
+                      value: /^[a-zA-Z\s]*$/,
+                      message: 'Account holder name can only contain letters and spaces'
+                    }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
@@ -454,43 +483,63 @@ export default function AddEmployeePage() {
         </div>
         
         {/* Educational Details Section */}
-        <div className="bg-gray-100 p-4 mb-4 rounded-lg">
+        <div className="bg-white p-4 mb-4 rounded-lg">
           <h2 className="text-lg font-semibold text-gray-800 mb-2 border-l-4 border-blue-500 pl-2">Educational Details</h2>
           
           {/* Higher Education */}
           <div className="bg-white p-4 rounded-lg mb-4">
             <h3 className="text-md font-medium text-gray-700 mb-3 border-l-2 border-green-500 pl-2">Higher Education</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Degree
+                  Degree Name*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter degree name (e.g., B.Tech, MBA)"
-                  {...register('graduation.degree')}
+                  {...register('graduation.degree', {
+                    required: 'Degree is required',
+                    pattern: {
+                      value: /^[a-zA-Z\s.]+$/,
+                      message: 'Degree can only contain letters, spaces and dots'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.graduation?.degree && (
+                  <p className="mt-1 text-sm text-red-600">{errors.graduation.degree.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Branch
+                  Branch*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter specialization/branch"
-                  {...register('graduation.branch')}
+                  {...register('graduation.branch', {
+                    required: 'Branch is required',
+                    pattern: {
+                      value: /^[a-zA-Z\s&-]+$/,
+                      message: 'Branch can only contain letters, spaces, & and -'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.graduation?.branch && (
+                  <p className="mt-1 text-sm text-red-600">{errors.graduation.branch.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Month
+                  Month*
                 </label>
                 <select
-                  {...register('graduation.month')}
+                  {...register('graduation.month', {
+                    required: 'Month is required'
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 >
                   <option value="">Select Month</option>
@@ -507,19 +556,31 @@ export default function AddEmployeePage() {
                   <option value="November">November</option>
                   <option value="December">December</option>
                 </select>
+                {errors.graduation?.month && (
+                  <p className="mt-1 text-sm text-red-600">{errors.graduation.month.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Passing Year
+                  Passing Year*
                 </label>
                 <input
                   type="text"
                   placeholder="YYYY"
                   {...register('graduation.passingYear', {
+                    required: 'Passing year is required',
                     pattern: {
                       value: /^(19|20)\d{2}$/,
                       message: 'Enter a valid 4-digit year'
+                    },
+                    validate: {
+                      notFuture: (value: string | undefined) => {
+                        if (!value) return true;
+                        const year = parseInt(value);
+                        const currentYear = new Date().getFullYear();
+                        return year <= currentYear || 'Passing year cannot be in the future';
+                      }
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -529,40 +590,65 @@ export default function AddEmployeePage() {
                 )}
               </div>
 
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  College Name
+                  College Name*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter college/institution name"
-                  {...register('graduation.collegeName')}
+                  {...register('graduation.collegeName', {
+                    required: 'College name is required',
+                    minLength: {
+                      value: 3,
+                      message: 'College name must be at least 3 characters'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.graduation?.collegeName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.graduation.collegeName.message}</p>
+                )}
               </div>
-
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  University Name
+                  University Name*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter university name"
-                  {...register('graduation.universityName')}
+                  {...register('graduation.universityName', {
+                    required: 'University name is required',
+                    minLength: {
+                      value: 3,
+                      message: 'University name must be at least 3 characters'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.graduation?.universityName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.graduation.universityName.message}</p>
+                )}
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Marks
+                  Marks*
                 </label>
                 <input
                   type="text"
                   placeholder="CGPA or Percentage"
-                  {...register('graduation.marks')}
+                  {...register('graduation.marks', {
+                    required: 'Marks are required',
+                    pattern: {
+                      value: /^([0-9]{1,2}(\.[0-9]{1,2})?|100)%?$|^([0-9]{1}(\.[0-9]{1,2})?|10(\.0{1,2})?)$/,
+                      message: 'Enter valid percentage (0-100) or CGPA (0-10)'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.graduation?.marks && (
+                  <p className="mt-1 text-sm text-red-600">{errors.graduation.marks.message}</p>
+                )}
               </div>
             </div>
           </div>
@@ -570,37 +656,57 @@ export default function AddEmployeePage() {
           {/* 12th Standard */}
           <div className="bg-white p-4 rounded-lg mb-4">
             <h3 className="text-md font-medium text-gray-700 mb-3 border-l-2 border-green-500 pl-2">12th Standard</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  School
+                  School Name*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter school name"
-                  {...register('twelthStandard.school')}
+                  {...register('twelthStandard.schoolName', {
+                    required: 'School name is required',
+                    minLength: {
+                      value: 3,
+                      message: 'School name must be at least 3 characters'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.twelthStandard?.schoolName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.twelthStandard.schoolName.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Branch
+                  Branch*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter branch/stream (e.g., Science, Commerce)"
-                  {...register('twelthStandard.branch')}
+                  {...register('twelthStandard.branch', {
+                    required: 'Branch is required',
+                    pattern: {
+                      value: /^[a-zA-Z\s]+$/,
+                      message: 'Branch can only contain letters and spaces'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.twelthStandard?.branch && (
+                  <p className="mt-1 text-sm text-red-600">{errors.twelthStandard.branch.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Month
+                  Month*
                 </label>
                 <select
-                  {...register('twelthStandard.month')}
+                  {...register('twelthStandard.month', {
+                    required: 'Month is required'
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 >
                   <option value="">Select Month</option>
@@ -617,19 +723,31 @@ export default function AddEmployeePage() {
                   <option value="November">November</option>
                   <option value="December">December</option>
                 </select>
+                {errors.twelthStandard?.month && (
+                  <p className="mt-1 text-sm text-red-600">{errors.twelthStandard.month.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Passing Year
+                  Passing Year*
                 </label>
                 <input
                   type="text"
                   placeholder="YYYY"
                   {...register('twelthStandard.passingYear', {
+                    required: 'Passing year is required',
                     pattern: {
                       value: /^(19|20)\d{2}$/,
                       message: 'Enter a valid 4-digit year'
+                    },
+                    validate: {
+                      notFuture: (value: string | undefined) => {
+                        if (!value) return true;
+                        const year = parseInt(value);
+                        const currentYear = new Date().getFullYear();
+                        return year <= currentYear || 'Passing year cannot be in the future';
+                      }
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -641,46 +759,31 @@ export default function AddEmployeePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  School Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter full school name"
-                  {...register('twelthStandard.schoolName')}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Marks
+                  Marks*
                 </label>
                 <input
                   type="text"
                   placeholder="Percentage"
-                  {...register('twelthStandard.marks')}
+                  {...register('twelthStandard.marks', {
+                    required: 'Marks are required',
+                    pattern: {
+                      value: /^([0-9]{1,2}(\.[0-9]{1,2})?|100)%?$/,
+                      message: 'Enter valid percentage between 0-100'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.twelthStandard?.marks && (
+                  <p className="mt-1 text-sm text-red-600">{errors.twelthStandard.marks.message}</p>
+                )}
               </div>
             </div>
           </div>
           
           {/* Other Education */}
           <div className="bg-white p-4 rounded-lg mb-4">
-            <h3 className="text-md font-medium text-gray-700 mb-3 border-l-2 border-green-500 pl-2">Other Education</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Diploma
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter diploma name"
-                  {...register('otherEducation.diploma')}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                />
-              </div>
-
+            <h3 className="text-md font-medium text-gray-700 mb-3 border-l-2 border-green-500 pl-2">Diploma</h3>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Branch
@@ -688,9 +791,17 @@ export default function AddEmployeePage() {
                 <input
                   type="text"
                   placeholder="Enter specialization/branch"
-                  {...register('otherEducation.branch')}
+                  {...register('otherEducation.branch', {
+                    pattern: {
+                      value: /^[a-zA-Z\s&-]+$/,
+                      message: 'Branch can only contain letters, spaces, & and -'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.otherEducation?.branch && (
+                  <p className="mt-1 text-sm text-red-600">{errors.otherEducation.branch.message}</p>
+                )}
               </div>
 
               <div>
@@ -728,6 +839,14 @@ export default function AddEmployeePage() {
                     pattern: {
                       value: /^(19|20)\d{2}$/,
                       message: 'Enter a valid 4-digit year'
+                    },
+                    validate: {
+                      notFuture: (value: string | undefined) => {
+                        if (!value) return true;
+                        const year = parseInt(value);
+                        const currentYear = new Date().getFullYear();
+                        return year <= currentYear || 'Passing year cannot be in the future';
+                      }
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -739,26 +858,42 @@ export default function AddEmployeePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  College Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter college/institution name"
-                  {...register('otherEducation.collegeName')}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
                   Marks
                 </label>
                 <input
                   type="text"
                   placeholder="Percentage"
-                  {...register('otherEducation.marks')}
+                  {...register('otherEducation.marks', {
+                    pattern: {
+                      value: /^([0-9]{1,2}(\.[0-9]{1,2})?|100)%?$/,
+                      message: 'Enter valid percentage between 0-100'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.otherEducation?.marks && (
+                  <p className="mt-1 text-sm text-red-600">{errors.otherEducation.marks.message}</p>
+                )}
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  College Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter college/institution name"
+                  {...register('otherEducation.collegeName', {
+                    minLength: {
+                      value: 3,
+                      message: 'College name must be at least 3 characters'
+                    }
+                  })}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
+                />
+                {errors.otherEducation?.collegeName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.otherEducation.collegeName.message}</p>
+                )}
               </div>
             </div>
           </div>
@@ -766,25 +901,36 @@ export default function AddEmployeePage() {
           {/* 10th Standard */}
           <div className="bg-white p-4 rounded-lg mb-4">
             <h3 className="text-md font-medium text-gray-700 mb-3 border-l-2 border-green-500 pl-2">10th Standard</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  School
+                  School Name*
                 </label>
                 <input
                   type="text"
                   placeholder="Enter school name"
-                  {...register('tenthStandard.school')}
+                  {...register('tenthStandard.schoolName', {
+                    required: 'School name is required',
+                    minLength: {
+                      value: 3,
+                      message: 'School name must be at least 3 characters'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.tenthStandard?.schoolName && (
+                  <p className="mt-1 text-sm text-red-600">{errors.tenthStandard.schoolName.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Month
+                  Month*
                 </label>
                 <select
-                  {...register('tenthStandard.month')}
+                  {...register('tenthStandard.month', {
+                    required: 'Month is required'
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 >
                   <option value="">Select Month</option>
@@ -801,19 +947,31 @@ export default function AddEmployeePage() {
                   <option value="November">November</option>
                   <option value="December">December</option>
                 </select>
+                {errors.tenthStandard?.month && (
+                  <p className="mt-1 text-sm text-red-600">{errors.tenthStandard.month.message}</p>
+                )}
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Passing Year
+                  Passing Year*
                 </label>
                 <input
                   type="text"
                   placeholder="YYYY"
                   {...register('tenthStandard.passingYear', {
+                    required: 'Passing year is required',
                     pattern: {
                       value: /^(19|20)\d{2}$/,
                       message: 'Enter a valid 4-digit year'
+                    },
+                    validate: {
+                      notFuture: (value: string | undefined) => {
+                        if (!value) return true;
+                        const year = parseInt(value);
+                        const currentYear = new Date().getFullYear();
+                        return year <= currentYear || 'Passing year cannot be in the future';
+                      }
                     }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
@@ -825,26 +983,23 @@ export default function AddEmployeePage() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  School Name
-                </label>
-                <input
-                  type="text"
-                  placeholder="Enter full school name"
-                  {...register('tenthStandard.schoolName')}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Marks
+                  Marks*
                 </label>
                 <input
                   type="text"
                   placeholder="Percentage"
-                  {...register('tenthStandard.marks')}
+                  {...register('tenthStandard.marks', {
+                    required: 'Marks are required',
+                    pattern: {
+                      value: /^([0-9]{1,2}(\.[0-9]{1,2})?|100)%?$/,
+                      message: 'Enter valid percentage between 0-100'
+                    }
+                  })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                 />
+                {errors.tenthStandard?.marks && (
+                  <p className="mt-1 text-sm text-red-600">{errors.tenthStandard.marks.message}</p>
+                )}
               </div>
             </div>
           </div>

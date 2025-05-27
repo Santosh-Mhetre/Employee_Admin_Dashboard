@@ -13,7 +13,7 @@ import {
   createUserWithEmailAndPassword
 } from 'firebase/auth';
 import { auth, db } from '../firebase/config';
-import { clearFirestoreCache } from '@/utils/firebaseUtils';
+import { clearFirestoreCache, setCurrentAdminForCache } from '@/utils/firebaseUtils';
 import { AdminUser } from '@/firebase/admin-auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 
@@ -50,6 +50,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
+      
+      // If user is logged in, set the current admin ID for cache
+      if (user) {
+        try {
+          const storedAdmin = sessionStorage.getItem('currentAdmin');
+          if (storedAdmin) {
+            const adminData = JSON.parse(storedAdmin);
+            if (adminData && adminData.mobile) {
+              setCurrentAdminForCache(adminData.mobile);
+              console.log('Set current admin for cache:', adminData.mobile);
+            }
+          }
+        } catch (error) {
+          console.error('Error setting current admin for cache:', error);
+        }
+      }
+      
       setLoading(false);
     });
 
@@ -60,6 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Special case for test user - bypass actual SMS
       if (phoneNumber === '+919999999999') {
+        console.log('Test user detected, bypassing SMS verification');
         // Return a mock verification ID for the test user
         return { verificationId: 'test-verification-id-for-9999999999' };
       }
@@ -126,6 +144,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Format the phone number with country code
       const phoneNumber = `+91${adminUser.mobile}`;
       
+      // For hardcoded admins, bypass the SMS verification completely
+      // We don't need to store admin info here anymore since it's handled in the login page
+      // This prevents any potential overriding of data
+      
+      // Return a mock confirmation result for the UI flow to continue
+      return { 
+        confirmationResult: {
+          verificationId: `mock-verification-for-admin-${adminUser.mobile}`
+        }
+      };
+      
+      // The code below is commented out because it requires Firebase Phone Auth to be enabled with billing
+      /*
       // Create RecaptchaVerifier if it doesn't exist
       if (!window.recaptchaVerifier) {
         window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
@@ -147,18 +178,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Send verification code
       const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       
-      // Since this is a hardcoded admin, we'll use a verification bypass approach
-      // In a real application, you would need to implement a proper verification flow
-      // This is just for demo purposes with hardcoded admins
-      
-      // Store admin info in session storage
-      sessionStorage.setItem('currentAdmin', JSON.stringify({
-        name: adminUser.name,
-        mobile: adminUser.mobile,
-        role: adminUser.role
-      }));
-      
       return { confirmationResult };
+      */
     } catch (error) {
       console.error('Error during admin credentials sign in:', error);
       // Reset the reCAPTCHA so the user can try again
@@ -185,6 +206,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Then sign out from Firebase auth
       await signOut(auth);
       console.log('Firebase auth signed out');
+      
+      // Return success to ensure the promise resolves
+      return Promise.resolve();
     } catch (error) {
       console.error('Error during logout:', error);
       throw error;

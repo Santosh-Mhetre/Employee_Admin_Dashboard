@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { FiEdit, FiTrash2, FiPlus, FiSearch, FiEye, FiBriefcase, FiArrowLeft } from 'react-icons/fi';
+import { FiEdit, FiTrash2, FiPlus, FiSearch, FiEye, FiBriefcase, FiArrowLeft, FiX, FiCheck } from 'react-icons/fi';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { getEmployees, deleteEmployee, getEmploymentsByEmployee, getSalaryHistoryByEmployment } from '@/utils/firebaseUtils';
 import { Employee, Employment } from '@/types';
@@ -15,6 +15,7 @@ interface EmployeeWithEmploymentDetails extends Employee {
     joiningDate: string | null;
     currentPackage: number | null;
     totalSalaries: number;
+    hasEmployment: boolean;
   };
 }
 
@@ -23,6 +24,7 @@ export default function EmployeesPage() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [deleteConfirm, setDeleteConfirm] = useState<string | null>(null);
+  const [showEmploymentAdd, setShowEmploymentAdd] = useState<string | null>(null);
   const [loadingEmployment, setLoadingEmployment] = useState<string | null>(null);
   const router = useRouter();
 
@@ -45,8 +47,9 @@ export default function EmployeesPage() {
             if (employments && employments.length > 0) {
               // Sort employments by joining date (most recent first)
               employments.sort((a, b) => {
-                const dateA = a.joiningDate || a.startDate;
-                const dateB = b.joiningDate || b.startDate;
+                const dateA = a.joiningDate || a.startDate || '';
+                const dateB = b.joiningDate || b.startDate || '';
+                if (!dateA || !dateB) return 0;
                 return new Date(dateB).getTime() - new Date(dateA).getTime();
               });
               
@@ -54,27 +57,47 @@ export default function EmployeesPage() {
               const latestEmployment = employments[0];
               
               // Get salary history for the most recent employment
-              const salaryHistory = await getSalaryHistoryByEmployment(latestEmployment.id);
+              const salaryHistory = await getSalaryHistoryByEmployment(latestEmployment.id || '');
               
               // Count total salary records (including the current employment record)
               const totalSalaries = salaryHistory ? salaryHistory.length + 1 : 1;
               
-              console.log(`Employee ${employee.name} (${employee.id}): Found ${salaryHistory?.length || 0} salary history records + 1 current record`);
-              
-              return {
+              const employeeWithDetails: EmployeeWithEmploymentDetails = {
                 ...employee,
                 employmentDetails: {
-                  joiningDate: latestEmployment.joiningDate || latestEmployment.startDate,
-                  currentPackage: latestEmployment.ctc || latestEmployment.salary || 0,
+                  joiningDate: latestEmployment.joiningDate || latestEmployment.startDate || null,
+                  currentPackage: latestEmployment.ctc || latestEmployment.salary || null,
                   totalSalaries: totalSalaries,
+                  hasEmployment: true
                 }
               };
+              
+              return employeeWithDetails;
             }
             
-            return employee;
+            const employeeWithoutEmployment: EmployeeWithEmploymentDetails = {
+              ...employee,
+              employmentDetails: {
+                joiningDate: null,
+                currentPackage: null,
+                totalSalaries: 0,
+                hasEmployment: false
+              }
+            };
+            
+            return employeeWithoutEmployment;
           } catch (error) {
             console.error(`Error fetching employments for employee ${employee.id}:`, error);
-            return employee;
+            const fallbackEmployee: EmployeeWithEmploymentDetails = {
+              ...employee,
+              employmentDetails: {
+                joiningDate: null,
+                currentPackage: null,
+                totalSalaries: 0,
+                hasEmployment: false
+              }
+            };
+            return fallbackEmployee;
           }
         })
       );
@@ -117,15 +140,19 @@ export default function EmployeesPage() {
         // Navigate to the first (most recent) employment
         router.push(`/employments/${employments[0].id}`);
       } else {
-        // Navigate to add employment page with the employee ID
-        toast.success('No employment records found. Redirecting to add employment page.');
-        router.push(`/employments/add?employeeId=${employeeId}`);
+        // Show the Add Employment button
+        setShowEmploymentAdd(employeeId);
       }
     } catch (error) {
       console.error('Error fetching employee employments:', error);
       toast.error('Failed to fetch employment details');
+    } finally {
       setLoadingEmployment(null);
     }
+  };
+
+  const cancelEmploymentAdd = () => {
+    setShowEmploymentAdd(null);
   };
 
   const formatCurrency = (amount: number) => {
@@ -340,16 +367,31 @@ export default function EmployeesPage() {
                       {deleteConfirm === employee.id ? (
                         <div className="flex items-center justify-center space-x-2">
                           <button
-                            onClick={() => confirmDelete(employee.id)}
-                            className="bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded-md text-xs"
+                            onClick={cancelDelete}
+                            className="border border-gray-500 bg-gray-100 text-gray-600 hover:bg-gray-200 px-2 py-1 rounded-md text-xs flex items-center gap-1"
                           >
-                            Confirm
+                            <FiX size={12} /> Cancel
                           </button>
                           <button
-                            onClick={cancelDelete}
-                            className="bg-gray-100 text-gray-600 hover:bg-gray-200 px-2 py-1 rounded-md text-xs"
+                            onClick={() => confirmDelete(employee.id)}
+                            className="border border-red-500 bg-red-100 text-red-600 hover:bg-red-200 px-2 py-1 rounded-md text-xs flex items-center gap-1"
                           >
-                            Cancel
+                            <FiCheck size={12} /> Confirm
+                          </button>
+                        </div>
+                      ) : showEmploymentAdd === employee.id ? (
+                        <div className="flex items-center justify-center space-x-2">
+                          <Link
+                            href={`/employments/add?employeeId=${employee.id}`}
+                            className="border border-blue-500 bg-blue-50 text-blue-600 hover:bg-blue-100 px-2 py-1 rounded-md text-xs flex items-center gap-1"
+                          >
+                            <FiPlus size={12} /> Add Employment
+                          </Link>
+                          <button
+                            onClick={cancelEmploymentAdd}
+                            className="border border-gray-500 bg-gray-100 text-gray-600 hover:bg-gray-200 px-2 py-1 rounded-md text-xs flex items-center gap-1"
+                          >
+                            <FiX size={12} /> Cancel
                           </button>
                         </div>
                       ) : (

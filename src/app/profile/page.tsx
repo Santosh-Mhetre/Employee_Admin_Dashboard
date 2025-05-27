@@ -6,40 +6,62 @@ import Link from 'next/link';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { FiHome, FiUser, FiChevronRight, FiArrowLeft } from 'react-icons/fi';
 import { SkeletonBreadcrumb, SkeletonCard, SkeletonHeader } from '@/components/ui/SkeletonLoader';
+import { setCurrentAdminForCache } from '@/utils/firebaseUtils';
 
 export default function ProfilePage() {
-  const [adminData, setAdminData] = useState<{
-    name: string;
-    mobile: string;
-    role: string;
-  } | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [adminData, setAdminData] = useState<any>(null);
   
   const router = useRouter();
 
   useEffect(() => {
     // Get admin data from session storage
     const storedAdmin = sessionStorage.getItem('currentAdmin');
+    
     if (!storedAdmin) {
-      // Redirect to login if no admin data found
-      router.push('/login');
+      console.log('No admin data found in session storage');
+      setLoading(false);
       return;
     }
     
     try {
       const parsedData = JSON.parse(storedAdmin);
+      
+      // Validate admin data structure
+      if (!parsedData || typeof parsedData !== 'object') {
+        console.error('Invalid admin data structure:', parsedData);
+        sessionStorage.removeItem('currentAdmin');
+        window.location.href = '/login';
+        return;
+      }
+      
+      // Set the current admin for cache isolation
+      if (parsedData.mobile) {
+        setCurrentAdminForCache(parsedData.mobile);
+      }
+      
       setAdminData(parsedData);
+      setLoading(false);
     } catch (error) {
       console.error('Error parsing admin data:', error);
-      router.push('/login');
+      sessionStorage.removeItem('currentAdmin');
+      window.location.href = '/login';
     }
-  }, [router]);
+  }, []);
 
   // Format role for display (convert snake_case to Title Case)
   const formatRole = (role: string) => {
-    return role
-      .split('_')
-      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(' ');
+    if (!role) return 'User'; // Default value if role is undefined
+    
+    try {
+      return role
+        .split('_')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+    } catch (error) {
+      console.error('Error formatting role:', error, 'Role value:', role);
+      return role; // Return the original value if there's an error
+    }
   };
 
   return (

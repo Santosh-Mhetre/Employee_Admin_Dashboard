@@ -7,6 +7,7 @@ import { useAuth } from '@/context/AuthContext';
 import toast, { Toaster } from 'react-hot-toast';
 import { authenticateAdmin } from '@/firebase/admin-auth';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { setCurrentAdminForCache } from '@/utils/firebaseUtils';
 
 type LoginFormValues = {
   mobile: string;
@@ -59,7 +60,12 @@ export default function LoginPage() {
       // Authenticate admin user against Firestore
       const adminUser = await authenticateAdmin(data.mobile, data.password);
       
-      console.log("Authentication result:", adminUser);
+      console.log("Authentication result:", adminUser ? {
+        id: adminUser.id,
+        name: adminUser.name,
+        mobile: adminUser.mobile,
+        role: adminUser.role
+      } : 'Authentication failed');
       
       if (!adminUser) {
         throw new Error('Invalid mobile number or password');
@@ -68,36 +74,33 @@ export default function LoginPage() {
       // Store admin data for later use
       setAdminData(adminUser);
       
-      // Define environment (for now hardcoded as development)
-      const isDevelopment = true; // In production, this would be: process.env.NODE_ENV !== 'production'
+      // Store admin info in session storage directly - make sure we use the actual admin data
+      // and don't override it with test admin data
+      const adminSessionData = {
+        name: adminUser.name,
+        mobile: adminUser.mobile,
+        role: adminUser.role
+      };
       
-      // Special case for test user - bypass SMS verification in development only
-      if (isDevelopment && data.mobile === '9999999999') {
-        console.log("Test user detected, bypassing SMS verification");
-        // Store admin info in session storage
-        sessionStorage.setItem('currentAdmin', JSON.stringify({
-          name: adminUser.name,
-          mobile: adminUser.mobile,
-          role: adminUser.role
-        }));
-        
-        toast.success('Login successful!', { id: 'login' });
-        
-        // Navigate to dashboard
+      // Clear any existing session data first
+      sessionStorage.removeItem('currentAdmin');
+      
+      // Store the new admin data
+      sessionStorage.setItem('currentAdmin', JSON.stringify(adminSessionData));
+      
+      // Set current admin for cache isolation
+      setCurrentAdminForCache(adminUser.mobile);
+      
+      console.log("Stored admin data in session storage:", adminSessionData);
+      
+      // For hardcoded admins, we'll bypass the SMS verification completely
+      // and redirect directly to the dashboard
+      toast.success('Login successful!', { id: 'login' });
+      
+      // Short delay to ensure session storage is updated before navigation
+      setTimeout(() => {
         router.push('/dashboard');
-        return;
-      }
-      
-      // For real admin users, proceed with SMS verification
-      // Format the phone number with country code
-      const phoneNumber = `+91${data.mobile}`;
-      
-      // Send verification code
-      const result = await signInWithPhone(phoneNumber);
-      setVerificationId(result.verificationId);
-      
-      toast.success('Verification code sent!', { id: 'login' });
-      setShowOTP(true);
+      }, 100);
       
     } catch (error: any) {
       setError(error.message || 'Failed to login');
@@ -205,6 +208,7 @@ export default function LoginPage() {
                   })}
                   className="py-3 px-4 block w-full rounded-md border-gray-300 focus:ring-blue-500 focus:border-blue-500 text-black"
                   placeholder="Enter password"
+                  autoComplete="current-password"
                 />
                 {watchPassword && watchPassword.length > 0 && (
                   <button

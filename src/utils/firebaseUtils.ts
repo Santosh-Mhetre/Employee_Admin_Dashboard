@@ -11,8 +11,10 @@ const cache = {
   employeeDetails: new Map<string, {data: Employee, timestamp: number}>(),
   employmentDetails: new Map<string, {data: Employment, timestamp: number}>(),
   cacheDuration: 60000, // 1 minute cache
+  currentAdminId: '', // Track the current admin
   
   clearCache() {
+    console.log('Clearing all cache data');
     this.employees = null;
     this.employments = null;
     this.employeesTimestamp = 0;
@@ -21,8 +23,26 @@ const cache = {
     this.employmentDetails.clear();
   },
   
+  setCurrentAdmin(adminMobile: string) {
+    if (this.currentAdminId !== adminMobile) {
+      console.log(`Admin changed from ${this.currentAdminId} to ${adminMobile}, clearing cache`);
+      this.clearCache();
+      this.currentAdminId = adminMobile;
+    }
+  },
+  
   isCacheValid(timestamp: number) {
-    return Date.now() - timestamp < this.cacheDuration;
+    // Check if we have a current admin and if the cache is still valid
+    if (!this.currentAdminId) {
+      console.log('No current admin set, cache invalid');
+      return false;
+    }
+    
+    const isValid = Date.now() - timestamp < this.cacheDuration;
+    if (!isValid) {
+      console.log('Cache expired');
+    }
+    return isValid;
   }
 };
 
@@ -246,6 +266,16 @@ export const getEmploymentsByEmployee = async (employeeId: string) => {
 // Add function to clear cache when needed (e.g., on logout)
 export const clearFirestoreCache = () => {
   cache.clearCache();
+  cache.currentAdminId = '';
+};
+
+// Set current admin for cache isolation
+export const setCurrentAdminForCache = (adminMobile: string) => {
+  if (adminMobile) {
+    cache.setCurrentAdmin(adminMobile);
+  } else {
+    clearFirestoreCache();
+  }
 };
 
 // Salary History CRUD operations

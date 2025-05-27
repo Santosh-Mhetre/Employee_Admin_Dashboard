@@ -15,7 +15,8 @@ interface SalaryFormData {
   basic: number | null;
   da: number | null;
   hra: number | null;
-  pf: number | null;
+  employeePF: number | null;
+  employerPF: number | null;
   medicalAllowance: number | null;
   transport: number | null;
   gratuity: number | null;
@@ -26,11 +27,7 @@ interface SalaryFormData {
   additionalAllowance: number | null;
   specialAllowance: number | null;
   educationAllowance: number | null;
-  monthlyReimbursement: number | null;
-  lta: number | null;
-  statutoryBonus: number | null;
   healthInsurance: number | null;
-  employerPF: number | null;
 }
 
 const SalaryModal: React.FC<SalaryModalProps> = ({
@@ -49,7 +46,8 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
       basic: currentSalary?.basic || null,
       da: currentSalary?.da || null,
       hra: currentSalary?.hra || null,
-      pf: currentSalary?.pf || null,
+      employeePF: currentSalary?.employeePF || null,
+      employerPF: currentSalary?.employerPF || null,
       medicalAllowance: currentSalary?.medicalAllowance || null,
       transport: currentSalary?.transport || null,
       gratuity: currentSalary?.gratuity || null,
@@ -60,11 +58,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
       additionalAllowance: currentSalary?.additionalAllowance || null,
       specialAllowance: currentSalary?.specialAllowance || null,
       educationAllowance: currentSalary?.educationAllowance || null,
-      monthlyReimbursement: currentSalary?.monthlyReimbursement || null,
-      lta: currentSalary?.lta || null,
-      statutoryBonus: currentSalary?.statutoryBonus || null,
       healthInsurance: currentSalary?.healthInsurance || null,
-      employerPF: currentSalary?.employerPF || null,
     }
   });
 
@@ -75,7 +69,8 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
         basic: null,
         da: null,
         hra: null,
-        pf: null,
+        employeePF: null,
+        employerPF: null,
         medicalAllowance: null,
         transport: null,
         gratuity: null,
@@ -86,11 +81,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
         additionalAllowance: null,
         specialAllowance: null,
         educationAllowance: null,
-        monthlyReimbursement: null,
-        lta: null,
-        statutoryBonus: null,
         healthInsurance: null,
-        employerPF: null,
       });
     }
   }, [isOpen, reset]);
@@ -122,7 +113,8 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
         basic: Number(data.basic || 0),
         da: Number(data.da || 0),
         hra: Number(data.hra || 0),
-        pf: Number(data.pf || 0),
+        employeePF: Number(data.employeePF || 0),
+        employerPF: Number(data.employerPF || 0),
         medicalAllowance: Number(data.medicalAllowance || 0),
         transport: Number(data.transport || 0),
         gratuity: Number(data.gratuity || 0),
@@ -132,11 +124,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
         additionalAllowance: Number(data.additionalAllowance || 0),
         specialAllowance: Number(data.specialAllowance || 0),
         educationAllowance: Number(data.educationAllowance || 0),
-        monthlyReimbursement: Number(data.monthlyReimbursement || 0),
-        lta: Number(data.lta || 0),
-        statutoryBonus: Number(data.statutoryBonus || 0),
         healthInsurance: Number(data.healthInsurance || 0),
-        employerPF: Number(data.employerPF || 0),
       };
       
       await onSave(formattedData);
@@ -154,16 +142,16 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
     <div className="fixed inset-0 backdrop-blur-sm bg-black/30 z-50 flex items-center justify-center p-4">
       <div ref={modalRef} className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <div className="sticky top-0 bg-white p-4 border-b flex justify-between items-center z-10">
+          <div className="w-8"></div> {/* Empty div for spacing */}
+          <h2 className="text-xl font-bold text-gray-800">
+            Add Salary
+          </h2>
           <button 
             onClick={onClose}
             className="p-1 rounded-full hover:bg-gray-200"
           >
             <FiX size={24} />
           </button>
-          <h2 className="text-xl font-bold text-gray-800">
-            Add New Salary Record
-          </h2>
-          <div className="w-8"></div> {/* Empty div for spacing */}
         </div>
         
         <div className="p-6">
@@ -230,21 +218,39 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 )}
               </div>
               
-              {/* PF */}
+              {/* Employee PF Contribution */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  PF - Provident Fund (₹)
+                  Employee PF Contribution (₹)
                 </label>
                 <input
                   type="number"
-                  placeholder="Enter provident fund amount"
-                  {...register('pf', { 
+                  placeholder="Enter employee PF contribution"
+                  {...register('employeePF', { 
                     min: { value: 0, message: 'Amount must be positive' }
                   })}
                   className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 />
-                {errors.pf && (
-                  <p className="mt-1 text-sm text-red-600">{errors.pf.message}</p>
+                {errors.employeePF && (
+                  <p className="mt-1 text-sm text-red-600">{errors.employeePF.message}</p>
+                )}
+              </div>
+              
+              {/* Employer PF Contribution */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Employer PF Contribution (₹)
+                </label>
+                <input
+                  type="number"
+                  placeholder="Enter employer PF contribution"
+                  {...register('employerPF', { 
+                    min: { value: 0, message: 'Amount must be positive' }
+                  })}
+                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                />
+                {errors.employerPF && (
+                  <p className="mt-1 text-sm text-red-600">{errors.employerPF.message}</p>
                 )}
               </div>
               
@@ -426,60 +432,6 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 )}
               </div>
               
-              {/* Monthly Reimbursement */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Monthly Reimbursement (₹)
-                </label>
-                <input
-                  type="number"
-                  placeholder="Enter monthly reimbursement"
-                  {...register('monthlyReimbursement', { 
-                    min: { value: 0, message: 'Amount must be positive' }
-                  })}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                {errors.monthlyReimbursement && (
-                  <p className="mt-1 text-sm text-red-600">{errors.monthlyReimbursement.message}</p>
-                )}
-              </div>
-              
-              {/* LTA */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  LTA - Leave Travel Allowance (₹)
-                </label>
-                <input
-                  type="number"
-                  placeholder="Enter leave travel allowance"
-                  {...register('lta', { 
-                    min: { value: 0, message: 'Amount must be positive' }
-                  })}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                {errors.lta && (
-                  <p className="mt-1 text-sm text-red-600">{errors.lta.message}</p>
-                )}
-              </div>
-              
-              {/* Statutory Bonus */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Statutory Bonus (₹)
-                </label>
-                <input
-                  type="number"
-                  placeholder="Enter statutory bonus"
-                  {...register('statutoryBonus', { 
-                    min: { value: 0, message: 'Amount must be positive' }
-                  })}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                {errors.statutoryBonus && (
-                  <p className="mt-1 text-sm text-red-600">{errors.statutoryBonus.message}</p>
-                )}
-              </div>
-              
               {/* Health Insurance */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -497,27 +449,9 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                   <p className="mt-1 text-sm text-red-600">{errors.healthInsurance.message}</p>
                 )}
               </div>
-              
-              {/* Employer PF */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Employer PF Contribution (₹)
-                </label>
-                <input
-                  type="number"
-                  placeholder="Enter employer PF contribution"
-                  {...register('employerPF', { 
-                    min: { value: 0, message: 'Amount must be positive' }
-                  })}
-                  className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                />
-                {errors.employerPF && (
-                  <p className="mt-1 text-sm text-red-600">{errors.employerPF.message}</p>
-                )}
-              </div>
             </div>
             
-            <div className="mt-8 flex justify-end gap-4">
+            <div className="mt-8 flex justify-between">
               <button
                 type="button"
                 onClick={onClose}
@@ -531,7 +465,7 @@ const SalaryModal: React.FC<SalaryModalProps> = ({
                 className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 flex items-center gap-2 disabled:opacity-50"
               >
                 <FiSave />
-                {isSubmitting ? 'Saving...' : 'Add Salary Record'}
+                {isSubmitting ? 'Saving...' : 'Add Salary'}
               </button>
             </div>
           </form>

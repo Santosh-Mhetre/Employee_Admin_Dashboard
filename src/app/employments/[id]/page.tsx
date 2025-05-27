@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { FiArrowLeft, FiEdit, FiTrash2, FiUser, FiBriefcase, FiCalendar, FiDollarSign, FiMapPin, FiPlus } from 'react-icons/fi';
+import { FiArrowLeft, FiEdit, FiTrash2, FiUser, FiBriefcase, FiCalendar, FiDollarSign, FiMapPin, FiPlus, FiCheck, FiX } from 'react-icons/fi';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { getEmployment, deleteEmployment, getEmployee, updateEmployment, addSalaryHistory, getSalaryHistoryByEmployment } from '@/utils/firebaseUtils';
 import { Employment, Employee } from '@/types';
@@ -211,7 +211,7 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
           <div className="flex items-center gap-2">
             <Link
               href={`/employments/${id}/edit`}
-              className="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-1"
+              className="border border-amber-500 bg-amber-100 text-amber-600 hover:bg-amber-200 px-3 py-1 rounded-md flex items-center gap-1 text-sm"
             >
               <FiEdit size={14} /> Edit
             </Link>
@@ -219,7 +219,7 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
             {!deleteConfirm ? (
               <button
                 onClick={handleDeleteClick}
-                className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700 flex items-center gap-1"
+                className="border border-red-500 bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded-md flex items-center gap-1 text-sm"
               >
                 <FiTrash2 size={14} /> Delete
               </button>
@@ -227,15 +227,15 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
               <div className="flex items-center gap-2">
                 <button
                   onClick={confirmDelete}
-                  className="px-3 py-1 bg-red-600 text-white rounded-md hover:bg-red-700"
+                  className="border border-red-500 bg-red-100 text-red-600 hover:bg-red-200 px-3 py-1 rounded-md text-sm flex items-center gap-1"
                 >
-                  Confirm
+                  <FiCheck size={14} /> Confirm
                 </button>
                 <button
                   onClick={cancelDelete}
-                  className="px-3 py-1 bg-gray-600 text-white rounded-md hover:bg-gray-700"
+                  className="border border-gray-500 bg-gray-100 text-gray-600 hover:bg-gray-200 px-3 py-1 rounded-md text-sm flex items-center gap-1"
                 >
-                  Cancel
+                  <FiX size={14} /> Cancel
                 </button>
               </div>
             )}
@@ -347,13 +347,13 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.ctc).replace('₹', '').trim()
+                    }).format(employment.ctc)
                   : employment.salary
                     ? new Intl.NumberFormat('en-IN', {
                         style: 'currency',
                         currency: 'INR',
                         maximumFractionDigits: 0
-                      }).format(employment.salary).replace('₹', '').trim()
+                      }).format(employment.salary)
                     : '-'}
               </p>
               <p className="text-sm text-gray-500">CTC</p>
@@ -366,7 +366,7 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.inHandCtc).replace('₹', '').trim()
+                    }).format(employment.inHandCtc)
                   : '-'}
               </p>
               <p className="text-sm text-gray-500">In-hand CTC</p>
@@ -379,7 +379,7 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.relievingCtc).replace('₹', '').trim()
+                    }).format(employment.relievingCtc)
                   : '-'}
               </p>
               <p className="text-sm text-gray-500">Relieving CTC</p>
@@ -395,15 +395,7 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
               <p className="text-sm text-gray-500">Designation</p>
             </div>
             
-            <div>
-              <p className="text-lg font-medium text-gray-900">
-                {employment.contractType ? employment.contractType.split('-').map(word => 
-                  word.charAt(0).toUpperCase() + word.slice(1)
-                ).join(' ') : '-'}
-              </p>
-              <p className="text-sm text-gray-500">Contract Type</p>
-            </div>
-            
+           
             <div>
               <p className="text-lg font-medium text-gray-900">
                 {employment.jobMode ? employment.jobMode.charAt(0).toUpperCase() + employment.jobMode.slice(1) : '-'}
@@ -433,6 +425,12 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Sr No
+                  </th>
+                  <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Credit Month
+                  </th>
                   <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Basic
                   </th>
@@ -469,53 +467,64 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
                 {/* Show current employment data as the first row */}
                 <tr>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                    1
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                    {employment.salaryCreditDate 
+                      ? new Date(employment.salaryCreditDate).toLocaleDateString('en-GB', {
+                          month: 'short',
+                          year: 'numeric'
+                        })
+                      : '-'}
+                  </td>
+                  <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {employment.basic ? new Intl.NumberFormat('en-IN', {
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.basic).replace('₹', '').trim() : '-'}
+                    }).format(employment.basic) : '-'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {employment.da ? new Intl.NumberFormat('en-IN', {
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.da).replace('₹', '').trim() : '-'}
+                    }).format(employment.da) : '-'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {employment.hra ? new Intl.NumberFormat('en-IN', {
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.hra).replace('₹', '').trim() : '-'}
+                    }).format(employment.hra) : '-'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {employment.pf ? new Intl.NumberFormat('en-IN', {
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.pf).replace('₹', '').trim() : '-'}
+                    }).format(employment.pf) : '-'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {employment.medicalAllowance ? new Intl.NumberFormat('en-IN', {
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.medicalAllowance).replace('₹', '').trim() : '-'}
+                    }).format(employment.medicalAllowance) : '-'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {employment.transport ? new Intl.NumberFormat('en-IN', {
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.transport).replace('₹', '').trim() : '-'}
+                    }).format(employment.transport) : '-'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {employment.gratuity ? new Intl.NumberFormat('en-IN', {
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.gratuity).replace('₹', '').trim() : '-'}
+                    }).format(employment.gratuity) : '-'}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                     {employment.totalLeaves !== undefined ? `${employment.totalLeaves} days` : '-'}
@@ -528,7 +537,7 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
                       style: 'currency',
                       currency: 'INR',
                       maximumFractionDigits: 0
-                    }).format(employment.salaryCreditedAmount).replace('₹', '').trim() : '-'}
+                    }).format(employment.salaryCreditedAmount) : '-'}
                   </td>
                 </tr>
                 
@@ -536,53 +545,64 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
                 {salaryHistory.map((record, index) => (
                   <tr key={record.id || index}>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                      {index + 2}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
+                      {record.salaryCreditDate 
+                        ? new Date(record.salaryCreditDate).toLocaleDateString('en-GB', {
+                            month: 'short',
+                            year: 'numeric'
+                          })
+                        : '-'}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                       {record.basic ? new Intl.NumberFormat('en-IN', {
                         style: 'currency',
                         currency: 'INR',
                         maximumFractionDigits: 0
-                      }).format(record.basic).replace('₹', '').trim() : '-'}
+                      }).format(record.basic) : '-'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                       {record.da ? new Intl.NumberFormat('en-IN', {
                         style: 'currency',
                         currency: 'INR',
                         maximumFractionDigits: 0
-                      }).format(record.da).replace('₹', '').trim() : '-'}
+                      }).format(record.da) : '-'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                       {record.hra ? new Intl.NumberFormat('en-IN', {
                         style: 'currency',
                         currency: 'INR',
                         maximumFractionDigits: 0
-                      }).format(record.hra).replace('₹', '').trim() : '-'}
+                      }).format(record.hra) : '-'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                       {record.pf ? new Intl.NumberFormat('en-IN', {
                         style: 'currency',
                         currency: 'INR',
                         maximumFractionDigits: 0
-                      }).format(record.pf).replace('₹', '').trim() : '-'}
+                      }).format(record.pf) : '-'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                       {record.medicalAllowance ? new Intl.NumberFormat('en-IN', {
                         style: 'currency',
                         currency: 'INR',
                         maximumFractionDigits: 0
-                      }).format(record.medicalAllowance).replace('₹', '').trim() : '-'}
+                      }).format(record.medicalAllowance) : '-'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                       {record.transport ? new Intl.NumberFormat('en-IN', {
                         style: 'currency',
                         currency: 'INR',
                         maximumFractionDigits: 0
-                      }).format(record.transport).replace('₹', '').trim() : '-'}
+                      }).format(record.transport) : '-'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                       {record.gratuity ? new Intl.NumberFormat('en-IN', {
                         style: 'currency',
                         currency: 'INR',
                         maximumFractionDigits: 0
-                      }).format(record.gratuity).replace('₹', '').trim() : '-'}
+                      }).format(record.gratuity) : '-'}
                     </td>
                     <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900 text-center">
                       {record.totalLeaves !== undefined ? `${record.totalLeaves} days` : '-'}
@@ -595,7 +615,7 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
                         style: 'currency',
                         currency: 'INR',
                         maximumFractionDigits: 0
-                      }).format(record.salaryCreditedAmount).replace('₹', '').trim() : '-'}
+                      }).format(record.salaryCreditedAmount) : '-'}
                     </td>
                   </tr>
                 ))}

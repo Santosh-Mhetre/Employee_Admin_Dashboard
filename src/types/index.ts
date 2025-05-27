@@ -82,74 +82,37 @@ export interface Employee {
 
 // Employment type
 export interface Employment {
-  id: string;
+  id?: string;
   employeeId: string;
-  
-  // Employment Information
-  employmentId?: string;
   joiningDate?: string;
+  startDate?: string;
   incrementDate?: string;
-  contractType: 'full-time' | 'part-time' | 'contract';
-  startDate: string;
-  endDate?: string;
   ctc?: number;
+  salary?: number;
   inHandCtc?: number;
   relievingCtc?: number;
   isPF?: boolean;
-  isResignation?: boolean;
-  
-  // Salary Information
-  salary: number;
-  salaryId?: string;
-  salaryCreditedAmount?: number;
+  designation?: string;
+  contractType?: string;
+  jobMode?: string;
   basic?: number;
   da?: number;
   hra?: number;
-  pf?: number;
+  employeePF?: number;
+  employerPF?: number;
   medicalAllowance?: number;
   transport?: number;
   gratuity?: number;
   totalLeaves?: number;
   salaryCreditDate?: string;
+  salaryCreditedAmount?: number;
   payableDays?: number;
-  paymentMode?: string;
   additionalAllowance?: number;
   specialAllowance?: number;
   educationAllowance?: number;
-  monthlyReimbursement?: number;
-  lta?: number;
-  statutoryBonus?: number;
   healthInsurance?: number;
-  employerPF?: number;
-  paymentFrequency: 'monthly' | 'bi-weekly' | 'weekly';
-  
-  // Job Details
-  jobTitle?: string;
-  designation?: string;
-  department?: string;
-  location?: string;
-  jobMode?: 'remote' | 'onsite' | 'hybrid';
-  reportingManager?: string;
-  reportingAuthority?: string;
-  employmentType?: string;
-  workSchedule?: string;
-  probationPeriod?: string;
-  noticePeriod?: string;
-  benefits: string[];
-  
-  // Resignation Details
-  resignationDate?: string;
-  lastWorkingDate?: string;
-  reasonForLeaving?: string;
-  exitInterviewDate?: string;
-  
-  // Appraisal Details
-  appraisalDate?: string;
-  previousSalary?: number;
-  newSalary?: number;
-  percentageIncrease?: number;
-  performanceRating?: string;
-  effectiveDate?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 // Salary Slip type

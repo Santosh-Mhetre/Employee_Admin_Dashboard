@@ -2,6 +2,7 @@ import { FiLogOut, FiUser } from 'react-icons/fi';
 import { useAuth } from '@/context/AuthContext';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { clearFirestoreCache } from '@/utils/firebaseUtils';
 
 const Header = () => {
   const { logout, currentUser } = useAuth();
@@ -25,6 +26,12 @@ const Header = () => {
   const handleLogout = async () => {
     try {
       console.log('Logging out...');
+      
+      // Clear cache first to ensure no data leakage
+      clearFirestoreCache();
+      console.log('Cache cleared for logout');
+      
+      // Then logout from Firebase
       await logout();
       console.log('Logged out successfully');
       

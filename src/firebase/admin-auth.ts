@@ -31,7 +31,12 @@ export const authenticateAdmin = async (mobile: string, password: string): Promi
     const adminDoc = querySnapshot.docs[0];
     const adminData = adminDoc.data() as Omit<AdminUser, 'id'>;
     
-    console.log('Admin data found:', { ...adminData, password: '****' });
+    console.log('Admin data found:', { 
+      name: adminData.name, 
+      mobile: adminData.mobile, 
+      role: adminData.role,
+      passwordLength: adminData.password ? adminData.password.length : 0
+    });
     
     // Check if password matches
     if (adminData.password !== password) {
@@ -39,13 +44,25 @@ export const authenticateAdmin = async (mobile: string, password: string): Promi
       return null;
     }
     
-    console.log('Authentication successful');
+    console.log('Authentication successful for:', adminData.name);
     
-    // Return the authenticated admin user
-    return {
+    // Return the authenticated admin user with complete data
+    const adminUser = {
       id: adminDoc.id,
-      ...adminData
+      name: adminData.name,
+      mobile: adminData.mobile,
+      role: adminData.role,
+      password: adminData.password
     };
+    
+    console.log('Returning admin user data:', {
+      id: adminUser.id,
+      name: adminUser.name,
+      mobile: adminUser.mobile,
+      role: adminUser.role
+    });
+    
+    return adminUser;
   } catch (error) {
     console.error('Error authenticating admin:', error);
     return null;

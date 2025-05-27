@@ -8,19 +8,19 @@ export default function AdminInitializer() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const setupAdmins = async () => {
+    const initAdmins = async () => {
       try {
-        console.log('Starting admin users initialization...');
+        console.log('Initializing admin users...');
         await initializeAdminUsers();
         setInitialized(true);
-        console.log('Admin users initialization completed successfully');
-      } catch (err) {
-        console.error('Error initializing admin users:', err);
-        setError('Failed to initialize admin users');
+        console.log('Admin users initialized successfully');
+      } catch (error: any) {
+        console.error('Error initializing admin users:', error);
+        setError(error.message || 'Failed to initialize admin users');
       }
     };
 
-    setupAdmins();
+    initAdmins();
   }, []);
 
   // This component doesn't render anything visible
