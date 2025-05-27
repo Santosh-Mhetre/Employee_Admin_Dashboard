@@ -61,14 +61,7 @@ export default function AddEmploymentPage() {
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<EmploymentFormData>({
     defaultValues: {
       employmentType: 'full-time',
-      paymentFrequency: 'monthly',
-      paymentMode: 'bank-transfer',
-      isPF: true,
-      designation: '',
       jobMode: 'onsite',
-      payableDays: 30,
-      totalLeaves: 24,
-      salaryCreditDate: '1st of every month',
     }
   });
 
@@ -214,7 +207,7 @@ export default function AddEmploymentPage() {
         </Link>
         
         <h1 className="text-xl font-bold text-gray-800 text-center flex-1">
-          {selectedEmployee ? `Add Employment for ${selectedEmployee.name}` : 'Add New Employment'}
+        Add Employment
         </h1>
         
         <div className="px-3 py-1 opacity-0">
@@ -244,12 +237,10 @@ export default function AddEmploymentPage() {
             <input type="hidden" {...register('employeeId')} />
 
             {/* Employment Information Section */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+            <div className="bg-white p-4 rounded-lg mb-6">
               <h2 className="text-lg font-medium text-gray-800 mb-4 border-l-4 border-blue-500 pl-2">Employment Information</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                
-
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Joining Date*
@@ -363,16 +354,15 @@ export default function AddEmploymentPage() {
                     <option value="hybrid">Hybrid</option>
                   </select>
                 </div>
+
               </div>
             </div>
 
-            {/* Salary Details Section */}
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
+            {/* Salary Information Section */}
+            <div className="bg-white p-4 rounded-lg mb-6">
               <h2 className="text-lg font-medium text-gray-800 mb-4 border-l-4 border-green-500 pl-2">Salary Information</h2>
               
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              
-
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     Basic (₹)*
@@ -403,9 +393,6 @@ export default function AddEmploymentPage() {
                     })}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
-                  {errors.da && (
-                    <p className="mt-1 text-sm text-red-600">{errors.da.message}</p>
-                  )}
                 </div>
 
                 <div>
@@ -420,9 +407,6 @@ export default function AddEmploymentPage() {
                     })}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
-                  {errors.hra && (
-                    <p className="mt-1 text-sm text-red-600">{errors.hra.message}</p>
-                  )}
                 </div>
 
                 <div>
@@ -437,9 +421,6 @@ export default function AddEmploymentPage() {
                     })}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
-                  {errors.pf && (
-                    <p className="mt-1 text-sm text-red-600">{errors.pf.message}</p>
-                  )}
                 </div>
 
                 <div>
@@ -454,9 +435,6 @@ export default function AddEmploymentPage() {
                     })}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
-                  {errors.medicalAllowance && (
-                    <p className="mt-1 text-sm text-red-600">{errors.medicalAllowance.message}</p>
-                  )}
                 </div>
 
                 <div>
@@ -471,9 +449,6 @@ export default function AddEmploymentPage() {
                     })}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
-                  {errors.transport && (
-                    <p className="mt-1 text-sm text-red-600">{errors.transport.message}</p>
-                  )}
                 </div>
 
                 <div>
@@ -488,9 +463,6 @@ export default function AddEmploymentPage() {
                     })}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
-                  {errors.gratuity && (
-                    <p className="mt-1 text-sm text-red-600">{errors.gratuity.message}</p>
-                  )}
                 </div>
                 
                 <div>
@@ -505,9 +477,6 @@ export default function AddEmploymentPage() {
                     })}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
-                  {errors.totalLeaves && (
-                    <p className="mt-1 text-sm text-red-600">{errors.totalLeaves.message}</p>
-                  )}
                 </div>
 
                 <div>
@@ -515,8 +484,7 @@ export default function AddEmploymentPage() {
                     Salary Credit Date
                   </label>
                   <input
-                    type="text"
-                    placeholder="e.g. 1st of every month"
+                    type="date"
                     {...register('salaryCreditDate')}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
@@ -535,9 +503,6 @@ export default function AddEmploymentPage() {
                     })}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
-                  {errors.salaryCreditedAmount && (
-                    <p className="mt-1 text-sm text-red-600">{errors.salaryCreditedAmount.message}</p>
-                  )}
                 </div>
                 
                 <div>
@@ -550,20 +515,6 @@ export default function AddEmploymentPage() {
                     {...register('payableDays')}
                     className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
                   />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Payment Mode
-                  </label>
-                  <select
-                    {...register('paymentMode')}
-                    className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-                  >
-                    <option value="bank-transfer">Bank Transfer</option>
-                    <option value="cheque">Cheque</option>
-                    <option value="cash">Cash</option>
-                  </select>
                 </div>
 
                 <div>

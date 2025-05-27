@@ -410,7 +410,7 @@ export default function EmploymentViewPage({ params }: { params: { id: string } 
       <div className="mb-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center justify-between">
           <div className="flex items-center">
-            <FiDollarSign className="mr-2" /> Salary History
+            <span className="mr-2">₹</span> Salary Information
           </div>
           <button 
             className="px-3 py-1 bg-green-600 text-white rounded-md flex items-center gap-1 hover:bg-green-700 text-sm"

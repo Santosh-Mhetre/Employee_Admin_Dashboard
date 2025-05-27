@@ -348,23 +348,26 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
         <h3 className="text-md font-medium text-gray-700 mb-4">Higher Education</h3>
         {employee.graduation ? (
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-
-            <div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* First row - College and University */}
+              <div className="md:col-span-2">
                 <p className="text-lg font-medium text-gray-900">{employee.graduation.collegeName || '-'}</p>
                 <p className="text-sm text-gray-500">College Name</p>
               </div>
+              <div className="md:col-span-2">
+                <p className="text-lg font-medium text-gray-900">{employee.graduation.universityName || '-'}</p>
+                <p className="text-sm text-gray-500">University Name</p>
+              </div>
               
+              {/* Second row - Other details */}
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.graduation.degree || '-'}</p>
                 <p className="text-sm text-gray-500">Degree</p>
               </div>
-              
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.graduation.branch || '-'}</p>
                 <p className="text-sm text-gray-500">Branch</p>
               </div>
-              
               <div>
                 <p className="text-lg font-medium text-gray-900">
                   {employee.graduation.month ? `${employee.graduation.month} ` : ''}
@@ -372,14 +375,6 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
                 </p>
                 <p className="text-sm text-gray-500">Passout Year</p>
               </div>
-              
-             
-              
-              <div>
-                <p className="text-lg font-medium text-gray-900">{employee.graduation.universityName || '-'}</p>
-                <p className="text-sm text-gray-500">University Name</p>
-              </div>
-              
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.graduation.marks || '-'}</p>
                 <p className="text-sm text-gray-500">Marks</p>
@@ -396,17 +391,18 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
         <h3 className="text-md font-medium text-gray-700 mt-6 mb-4">12th Standard</h3>
         {employee.twelthStandard ? (
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* First row - School Name */}
+              <div className="md:col-span-4">
                 <p className="text-lg font-medium text-gray-900">{employee.twelthStandard.school || '-'}</p>
                 <p className="text-sm text-gray-500">School Name</p>
               </div>
               
+              {/* Second row - Other details */}
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.twelthStandard.branch || '-'}</p>
                 <p className="text-sm text-gray-500">Branch</p>
               </div>
-              
               <div>
                 <p className="text-lg font-medium text-gray-900">
                   {employee.twelthStandard.month ? `${employee.twelthStandard.month} ` : ''}
@@ -414,7 +410,6 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
                 </p>
                 <p className="text-sm text-gray-500">Passout Year</p>
               </div>
-              
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.twelthStandard.marks || '-'}</p>
                 <p className="text-sm text-gray-500">Marks</p>
@@ -431,19 +426,18 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
         <h3 className="text-md font-medium text-gray-700 mt-6 mb-4">Diploma</h3>
         {employee.otherEducation ? (
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-             
-            <div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* First row - College Name */}
+              <div className="md:col-span-4">
                 <p className="text-lg font-medium text-gray-900">{employee.otherEducation.collegeName || '-'}</p>
                 <p className="text-sm text-gray-500">College Name</p>
               </div>
 
-
+              {/* Second row - Other details */}
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.otherEducation.branch || '-'}</p>
                 <p className="text-sm text-gray-500">Branch</p>
               </div>
-              
               <div>
                 <p className="text-lg font-medium text-gray-900">
                   {employee.otherEducation.month ? `${employee.otherEducation.month} ` : ''}
@@ -451,9 +445,6 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
                 </p>
                 <p className="text-sm text-gray-500">Passout Year</p>
               </div>
-              
-             
-              
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.otherEducation.marks || '-'}</p>
                 <p className="text-sm text-gray-500">Marks</p>
@@ -470,12 +461,14 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
         <h3 className="text-md font-medium text-gray-700 mt-6 mb-4">10th Standard</h3>
         {employee.tenthStandard ? (
           <div className="bg-white rounded-lg shadow p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+              {/* First row - School Name */}
+              <div className="md:col-span-4">
                 <p className="text-lg font-medium text-gray-900">{employee.tenthStandard.school || '-'}</p>
-                <p className="text-sm text-gray-500">School</p>
+                <p className="text-sm text-gray-500">School Name</p>
               </div>
               
+              {/* Second row - Other details */}
               <div>
                 <p className="text-lg font-medium text-gray-900">
                   {employee.tenthStandard.month ? `${employee.tenthStandard.month} ` : ''}
@@ -483,7 +476,6 @@ export default function EmployeeViewPage({ params }: { params: { id: string } })
                 </p>
                 <p className="text-sm text-gray-500">Passout Year</p>
               </div>
-              
               <div>
                 <p className="text-lg font-medium text-gray-900">{employee.tenthStandard.marks || '-'}</p>
                 <p className="text-sm text-gray-500">Marks</p>

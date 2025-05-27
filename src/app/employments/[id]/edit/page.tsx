@@ -265,7 +265,7 @@ function EditEmploymentPage({ params }: { params: { id: string } }) {
         </Link>
         
         <h1 className="text-xl font-bold text-gray-800 text-center flex-1">
-          {selectedEmployee ? `Edit Employment for ${selectedEmployee.name}` : 'Edit Employment'}
+          Edit Employment Details
         </h1>
         
         <div className="px-3 py-1 opacity-0">
@@ -294,7 +294,7 @@ function EditEmploymentPage({ params }: { params: { id: string } }) {
         <div className="bg-gray-50 p-4 rounded-lg mb-6">
           <h2 className="text-lg font-medium text-gray-800 mb-4 border-l-4 border-blue-500 pl-2">Employment Information</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Joining Date*
@@ -408,234 +408,10 @@ function EditEmploymentPage({ params }: { params: { id: string } }) {
                 <option value="hybrid">Hybrid</option>
               </select>
             </div>
-          </div>
-        </div>
 
-        {/* Salary Information */}
-        <div className="bg-gray-50 p-4 rounded-lg mb-6">
-          <h2 className="text-lg font-medium text-gray-800 mb-4 border-l-4 border-green-500 pl-2">Salary Information</h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Basic (₹)*
-              </label>
-              <input
-                type="number"
-                placeholder="Basic salary amount"
-                {...register('basic', { 
-                  required: 'Basic salary is required',
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-              {errors.basic && (
-                <p className="mt-1 text-sm text-red-600">{errors.basic.message}</p>
-              )}
-            </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                DA (₹)
-              </label>
-              <input
-                type="number"
-                placeholder="Dearness Allowance"
-                {...register('da', { 
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-              {errors.da && (
-                <p className="mt-1 text-sm text-red-600">{errors.da.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                HRA (₹)
-              </label>
-              <input
-                type="number"
-                placeholder="House Rent Allowance"
-                {...register('hra', { 
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-              {errors.hra && (
-                <p className="mt-1 text-sm text-red-600">{errors.hra.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                PF (₹)
-              </label>
-              <input
-                type="number"
-                placeholder="Provident Fund"
-                {...register('pf', { 
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-              {errors.pf && (
-                <p className="mt-1 text-sm text-red-600">{errors.pf.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Medical Allowance (₹)
-              </label>
-              <input
-                type="number"
-                placeholder="Medical Allowance"
-                {...register('medicalAllowance', { 
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-              {errors.medicalAllowance && (
-                <p className="mt-1 text-sm text-red-600">{errors.medicalAllowance.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Transport (₹)
-              </label>
-              <input
-                type="number"
-                placeholder="Transport Allowance"
-                {...register('transport', { 
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-              {errors.transport && (
-                <p className="mt-1 text-sm text-red-600">{errors.transport.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Gratuity (₹)
-              </label>
-              <input
-                type="number"
-                placeholder="Gratuity"
-                {...register('gratuity', { 
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-              {errors.gratuity && (
-                <p className="mt-1 text-sm text-red-600">{errors.gratuity.message}</p>
-              )}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Total Leaves
-              </label>
-              <input
-                type="number"
-                placeholder="Days per year"
-                {...register('totalLeaves', { 
-                  min: { value: 0, message: 'Value must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-              {errors.totalLeaves && (
-                <p className="mt-1 text-sm text-red-600">{errors.totalLeaves.message}</p>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Salary Credit Date
-              </label>
-              <input
-                type="text"
-                placeholder="e.g. 1st of every month"
-                {...register('salaryCreditDate')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Salary Credited Amount (₹)*
-              </label>
-              <input
-                type="number"
-                placeholder="Salary Credited Amount"
-                {...register('salaryCreditedAmount', { 
-                  required: 'Salary credited amount is required',
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-              {errors.salaryCreditedAmount && (
-                <p className="mt-1 text-sm text-red-600">{errors.salaryCreditedAmount.message}</p>
-              )}
-            </div>
-            
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Payable Days
-              </label>
-              <input
-                type="number"
-                placeholder="Days"
-                {...register('payableDays')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Payment Mode
-              </label>
-              <select
-                {...register('paymentMode')}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              >
-                <option value="bank-transfer">Bank Transfer</option>
-                <option value="cheque">Cheque</option>
-                <option value="cash">Cash</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Additional Allowance (₹)
-              </label>
-              <input
-                type="number"
-                placeholder="Additional Allowance"
-                {...register('additionalAllowance', { 
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Special Allowance (₹)
-              </label>
-              <input
-                type="number"
-                placeholder="Special Allowance"
-                {...register('specialAllowance', { 
-                  min: { value: 0, message: 'Amount must be positive' }
-                })}
-                className="w-full p-2 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black"
-              />
-            </div>
+           
           </div>
         </div>
 
